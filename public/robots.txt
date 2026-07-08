@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /setup
+Disallow: /comprovante/
+Disallow: /consulta
+
+Sitemap: https://concursodebolsas.com.br/sitemap.xml

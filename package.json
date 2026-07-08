@@ -1,0 +1,13 @@
+{
+  "name": "cbanglo26",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Concurso de Bolsas — landing page e sistema de inscrição (Node.js usado somente no build dos assets)",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "watch": "node tools/build.mjs --watch"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0"
+  }
+}
