@@ -219,14 +219,17 @@ final class Inscricao
         return [$where, $params];
     }
 
-    private static function ordenacao(string $key): string
-    {
-        return match ($key) {
-            'antigas' => 'i.criado_em ASC',
-            'nome' => 'i.aluno_nome ASC',
-            'nome_desc' => 'i.aluno_nome DESC',
-            default => 'i.criado_em DESC',
-        };
+    private static function ordenacao($key) {
+        switch ($key) {
+            case 'antigas':
+                return 'i.criado_em ASC';
+            case 'nome':
+                return 'i.aluno_nome ASC';
+            case 'nome_desc':
+                return 'i.aluno_nome DESC';
+            default:
+                return 'i.criado_em DESC';
+        }
     }
 
     /**

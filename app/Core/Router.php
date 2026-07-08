@@ -6,27 +6,30 @@ namespace App\Core;
 
 /**
  * Roteador leve com parâmetros nomeados ({slug}) e middlewares.
+ * Compatível com PHP 7.1+
  */
 final class Router
 {
-    /** @var array<int, array{method: string, pattern: string, handler: callable|array, middleware: array}> */
-    private array $routes = [];
+    /** @var array */
+    private $routes = [];
 
     /** @var callable|null */
     private $notFound = null;
 
-    public function get(string $pattern, callable|array $handler, array $middleware = []): void
-    {
+    public function __construct() {
+        $this->routes = [];
+        $this->notFound = null;
+    }
+
+    public function get($pattern, $handler, $middleware = []) {
         $this->add('GET', $pattern, $handler, $middleware);
     }
 
-    public function post(string $pattern, callable|array $handler, array $middleware = []): void
-    {
+    public function post($pattern, $handler, $middleware = []) {
         $this->add('POST', $pattern, $handler, $middleware);
     }
 
-    public function add(string $method, string $pattern, callable|array $handler, array $middleware = []): void
-    {
+    public function add($method, $pattern, $handler, $middleware = []) {
         $this->routes[] = [
             'method' => $method,
             'pattern' => $pattern,
@@ -35,13 +38,11 @@ final class Router
         ];
     }
 
-    public function setNotFound(callable $handler): void
-    {
+    public function setNotFound($handler) {
         $this->notFound = $handler;
     }
 
-    public function dispatch(string $method, string $uri): void
-    {
+    public function dispatch($method, $uri) {
         $path = parse_url($uri, PHP_URL_PATH) ?: '/';
         $path = '/' . trim($path, '/');
 

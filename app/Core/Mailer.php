@@ -9,32 +9,32 @@ namespace App\Core;
  * com suporte a STARTTLS (587), SSL implícito (465) e AUTH LOGIN.
  * Se SMTP não estiver configurado, o envio é silenciosamente pulado —
  * a aplicação nunca depende do e-mail para concluir uma inscrição.
+ * Compatível com PHP 7.1+
  */
 final class Mailer
 {
-    /** @param array<string, mixed> $mail */
-    public function __construct(private array $mail)
-    {
+    /** @var array */
+    private $mail;
+
+    public function __construct($mail) {
+        $this->mail = $mail;
     }
 
-    public static function fromConfig(): self
-    {
+    public static function fromConfig() {
         $config = require BASE_PATH . '/config/app.php';
         return new self($config['mail']);
     }
 
-    public function isConfigured(): bool
-    {
-        return ($this->mail['smtp_host'] ?? '') !== ''
-            && ($this->mail['from_address'] ?? '') !== '';
+    public function isConfigured() {
+        return (isset($this->mail['smtp_host']) ? $this->mail['smtp_host'] : '') !== ''
+            && (isset($this->mail['from_address']) ? $this->mail['from_address'] : '') !== '';
     }
 
     /**
      * Envia um e-mail HTML. Retorna true em caso de sucesso.
      * Nunca lança exceção para o chamador — registra a falha e retorna false.
      */
-    public function send(string $to, string $subject, string $html, string $textAlt = ''): bool
-    {
+    public function send($to, $subject, $html, $textAlt = '') {
         if (!$this->isConfigured()) {
             Logger::info('SMTP não configurado — e-mail não enviado.', ['subject' => $subject]);
             return false;
@@ -48,11 +48,10 @@ final class Mailer
         }
     }
 
-    private function smtpSend(string $to, string $subject, string $html, string $textAlt): void
-    {
+    private function smtpSend($to, $subject, $html, $textAlt) {
         $host = $this->mail['smtp_host'];
         $port = (int) $this->mail['smtp_port'];
-        $enc  = strtolower((string) $this->mail['encryption']);
+        $enc  = strtolower((string) (isset($this->mail['encryption']) ? $this->mail['encryption'] : ''));
 
         $remote = ($enc === 'ssl' ? 'ssl://' : 'tcp://') . $host . ':' . $port;
         $context = stream_context_create([
@@ -118,7 +117,9 @@ final class Mailer
         if ($textAlt === '') {
             $textAlt = trim(strip_tags(preg_replace('/<br\s*\/?\s*>/i', "\n", $html) ?? ''));
         }
-        $encodeHeader = fn (string $v): string => '=?UTF-8?B?' . base64_encode($v) . '?=';
+        $encodeHeader = function ($v) {
+            return '=?UTF-8?B?' . base64_encode($v) . '?=';
+        };
 
         $headers = [
             'Date: ' . date('r'),

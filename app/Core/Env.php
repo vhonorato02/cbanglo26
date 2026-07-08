@@ -6,14 +6,14 @@ namespace App\Core;
 
 /**
  * Carregador simples de variáveis de ambiente a partir de um arquivo .env.
+ * Compatível com PHP 7.1+
  */
 final class Env
 {
-    /** @var array<string, string> */
-    private static array $vars = [];
+    /** @var array */
+    private static $vars = [];
 
-    public static function load(string $path): void
-    {
+    public static function load($path) {
         if (!is_file($path)) {
             return;
         }
@@ -23,7 +23,7 @@ final class Env
         }
         foreach ($lines as $line) {
             $line = trim($line);
-            if ($line === '' || str_starts_with($line, '#')) {
+            if ($line === '' || self::str_starts_with($line, '#')) {
                 continue;
             }
             $pos = strpos($line, '=');
@@ -44,8 +44,7 @@ final class Env
         }
     }
 
-    public static function get(string $key, string $default = ''): string
-    {
+    public static function get($key, $default = '') {
         if (array_key_exists($key, self::$vars)) {
             return self::$vars[$key];
         }
@@ -53,15 +52,17 @@ final class Env
         return $fromServer !== false ? $fromServer : $default;
     }
 
-    public static function bool(string $key, bool $default = false): bool
-    {
+    public static function bool($key, $default = false) {
         $value = strtolower(self::get($key, $default ? 'true' : 'false'));
         return in_array($value, ['1', 'true', 'yes', 'on'], true);
     }
 
     /** Somente para testes. */
-    public static function set(string $key, string $value): void
-    {
+    public static function set($key, $value) {
         self::$vars[$key] = $value;
+    }
+
+    private static function str_starts_with($haystack, $needle) {
+        return strpos($haystack, $needle) === 0;
     }
 }

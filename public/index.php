@@ -28,8 +28,9 @@ require BASE_PATH . '/routes/web.php';
 // Remove o prefixo do subdiretório quando o app roda fora da raiz do domínio.
 // Só se aplica quando o SCRIPT_NAME termina em index.php (Apache); o servidor
 // embutido do PHP usa o próprio caminho da rota como SCRIPT_NAME.
-$uri = $_SERVER['REQUEST_URI'] ?? '/';
-$scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '/');
+$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/';
+$scriptName = isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '/';
+$scriptName = str_replace('\\', '/', $scriptName);
 if (str_ends_with($scriptName, '/index.php')) {
     $scriptDir = rtrim(dirname($scriptName), '/');
     if ($scriptDir !== '' && str_starts_with($uri, $scriptDir . '/')) {
@@ -37,4 +38,4 @@ if (str_ends_with($scriptName, '/index.php')) {
     }
 }
 
-$router->dispatch($_SERVER['REQUEST_METHOD'] ?? 'GET', $uri);
+$router->dispatch(isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET', $uri);

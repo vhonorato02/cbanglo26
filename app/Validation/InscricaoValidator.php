@@ -11,28 +11,30 @@ use App\Models\Serie;
 /**
  * Validação servidor da inscrição pública.
  * Todos os campos são obrigatórios (definição da campanha).
+ * Compatível com PHP 7.1+
  */
 final class InscricaoValidator
 {
-    /** @var array<string, string> */
-    private array $errors = [];
+    /** @var array */
+    private $errors = [];
 
-    /** @var array<string, mixed> */
-    private array $data = [];
+    /** @var array */
+    private $data = [];
 
-    private bool $checkDb;
+    /** @var bool */
+    private $checkDb;
 
-    public function __construct(bool $checkDb = true)
-    {
+    public function __construct($checkDb = true) {
         $this->checkDb = $checkDb;
+        $this->errors = [];
+        $this->data = [];
     }
 
     /**
-     * @param array<string, mixed> $input Dados brutos ($_POST).
+     * @param array $input Dados brutos ($_POST).
      * @return bool true quando válido; erros em errors(), dados em data().
      */
-    public function validate(array $input): bool
-    {
+    public function validate($input) {
         $this->errors = [];
         $this->data = [];
 
@@ -52,14 +54,21 @@ final class InscricaoValidator
         return $this->errors === [];
     }
 
-    private function validarNome(string $campo, array $input, string $msgVazio): void
-    {
+    // Polyfills para string functions (PHP 8.0+)
+    private function str_contains($haystack, $needle) {
+        return strpos($haystack, $needle) !== false;
+    }
+    private function str_starts_with($haystack, $needle) {
+        return strpos($haystack, $needle) === 0;
+    }
+
+    private function validarNome($campo, $input, $msgVazio) {
         $valor = Str::clean((string) ($input[$campo] ?? ''));
         if ($valor === '') {
             $this->errors[$campo] = $msgVazio;
             return;
         }
-        if (mb_strlen($valor) < 5 || !str_contains($valor, ' ')) {
+        if (mb_strlen($valor) < 5 || !$this->str_contains($valor, ' ')) {
             $this->errors[$campo] = 'Informe nome e sobrenome.';
             return;
         }
@@ -74,8 +83,7 @@ final class InscricaoValidator
         $this->data[$campo] = $valor;
     }
 
-    private function validarNascimento(array $input): void
-    {
+    private function validarNascimento($input) {
         $valor = Str::clean((string) ($input['aluno_nascimento'] ?? ''));
         if ($valor === '') {
             $this->errors['aluno_nascimento'] = 'Informe a data de nascimento do estudante.';
@@ -107,8 +115,7 @@ final class InscricaoValidator
         $this->data['aluno_nascimento'] = $data;
     }
 
-    private function validarSerie(array $input): void
-    {
+    private function validarSerie($input) {
         $id = (int) ($input['serie_id'] ?? 0);
         if ($id <= 0) {
             $this->errors['serie_id'] = 'Escolha a série pretendida.';
@@ -121,8 +128,7 @@ final class InscricaoValidator
         $this->data['serie_id'] = $id;
     }
 
-    private function validarEscola(array $input): void
-    {
+    private function validarEscola($input) {
         $id = (int) ($input['escola_id'] ?? 0);
         if ($id <= 0) {
             $this->errors['escola_id'] = 'Escolha a escola em que deseja estudar.';
@@ -135,8 +141,7 @@ final class InscricaoValidator
         $this->data['escola_id'] = $id;
     }
 
-    private function validarTexto(string $campo, array $input, string $msgVazio, int $min, int $max): void
-    {
+    private function validarTexto($campo, $input, $msgVazio, $min, $max) {
         $valor = Str::clean((string) ($input[$campo] ?? ''));
         if ($valor === '') {
             $this->errors[$campo] = $msgVazio;
@@ -153,8 +158,7 @@ final class InscricaoValidator
         $this->data[$campo] = $valor;
     }
 
-    private function validarWhatsapp(array $input): void
-    {
+    private function validarWhatsapp($input) {
         $bruto = (string) ($input['whatsapp'] ?? '');
         $digitos = Str::digits($bruto);
         if ($digitos === '') {
@@ -162,7 +166,7 @@ final class InscricaoValidator
             return;
         }
         // Aceita DDD + número (10 ou 11 dígitos, celular começa com 9)
-        if (strlen($digitos) === 13 && str_starts_with($digitos, '55')) {
+        if (strlen($digitos) === 13 && $this->str_starts_with($digitos, '55')) {
             $digitos = substr($digitos, 2);
         }
         if (strlen($digitos) < 10 || strlen($digitos) > 11) {
@@ -185,8 +189,7 @@ final class InscricaoValidator
         $this->data['whatsapp'] = $digitos;
     }
 
-    private function validarEmail(array $input): void
-    {
+    private function validarEmail($input) {
         $valor = mb_strtolower(Str::clean((string) ($input['email'] ?? '')), 'UTF-8');
         if ($valor === '') {
             $this->errors['email'] = 'Informe o e-mail do responsável.';
@@ -199,8 +202,7 @@ final class InscricaoValidator
         $this->data['email'] = $valor;
     }
 
-    private function validarConsentimento(string $campo, array $input, string $msg): void
-    {
+    private function validarConsentimento($campo, $input, $msg) {
         $valor = $input[$campo] ?? '';
         if ($valor !== '1' && $valor !== 1 && $valor !== 'on' && $valor !== true) {
             $this->errors[$campo] = $msg;
@@ -209,15 +211,13 @@ final class InscricaoValidator
         $this->data[$campo] = 1;
     }
 
-    /** @return array<string, string> */
-    public function errors(): array
-    {
+    /** @return array */
+    public function errors() {
         return $this->errors;
     }
 
-    /** @return array<string, mixed> Dados normalizados e seguros. */
-    public function data(): array
-    {
+    /** @return array */
+    public function data() {
         return $this->data;
     }
 }

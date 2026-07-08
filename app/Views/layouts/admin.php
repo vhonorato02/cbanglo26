@@ -2,11 +2,26 @@
 /**
  * Layout do painel administrativo.
  * $content, $user, $pageTitle?
+ * Compatível com PHP 7.1+
  */
 use App\Core\Csrf;
 
-$uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/';
-$ativo = fn (string $prefix): string => (str_contains($uri, $prefix) ? 'is-active' : '');
+// Polyfills para string functions (PHP 8.0+)
+if (!function_exists('str_contains')) {
+    function str_contains($haystack, $needle) {
+        return strpos($haystack, $needle) !== false;
+    }
+}
+if (!function_exists('str_ends_with')) {
+    function str_ends_with($haystack, $needle) {
+        return $needle === '' || substr_compare($haystack, $needle, -strlen($needle)) === 0;
+    }
+}
+
+$uri = parse_url(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/', PHP_URL_PATH) ?? '/';
+$ativo = function ($prefix) use ($uri) {
+    return (str_contains($uri, $prefix) ? 'is-active' : '');
+};
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
