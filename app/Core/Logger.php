@@ -7,25 +7,26 @@ namespace App\Core;
 /**
  * Log em arquivo fora da pasta pública (storage/logs).
  * Não registra dados pessoais — apenas mensagens técnicas.
+ * Compatível com PHP 7.1+
  */
 final class Logger
 {
-    public static function info(string $message, array $context = []): void
+    public static function info($message, $context = [])
     {
         self::write('INFO', $message, $context);
     }
 
-    public static function warning(string $message, array $context = []): void
+    public static function warning($message, $context = [])
     {
         self::write('WARN', $message, $context);
     }
 
-    public static function error(string $message, array $context = []): void
+    public static function error($message, $context = [])
     {
         self::write('ERROR', $message, $context);
     }
 
-    private static function write(string $level, string $message, array $context): void
+    private static function write($level, $message, $context)
     {
         $dir = (defined('BASE_PATH') ? BASE_PATH : dirname(__DIR__, 2)) . '/storage/logs';
         if (!is_dir($dir)) {

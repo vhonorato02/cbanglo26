@@ -9,28 +9,30 @@ use App\Models\LoginAttempt;
 
 /**
  * Autenticação administrativa por sessão com limite de tentativas.
+ * Compatível com PHP 7.1+
  */
 final class Auth
 {
-    private const SESSION_KEY = 'admin_id';
-    public const MAX_ATTEMPTS = 5;
-    public const LOCKOUT_MINUTES = 15;
+    const SESSION_KEY = 'admin_id';
+    const MAX_ATTEMPTS = 5;
+    const LOCKOUT_MINUTES = 15;
 
-    public static function check(): bool
+    public static function check()
     {
         Session::start();
         return is_int(Session::get(self::SESSION_KEY));
     }
 
-    public static function id(): ?int
+    /** @return int|null */
+    public static function id()
     {
         Session::start();
         $id = Session::get(self::SESSION_KEY);
         return is_int($id) ? $id : null;
     }
 
-    /** @return array<string, mixed>|null */
-    public static function user(): ?array
+    /** @return array|null */
+    public static function user()
     {
         $id = self::id();
         return $id !== null ? AdminUser::find($id) : null;
@@ -42,7 +44,7 @@ final class Auth
      *  'locked'    — bloqueado por excesso de tentativas;
      *  'invalid'   — credenciais inválidas.
      */
-    public static function attempt(string $email, string $password): string
+    public static function attempt($email, $password)
     {
         Session::start();
         $email = mb_strtolower(Str::clean($email), 'UTF-8');

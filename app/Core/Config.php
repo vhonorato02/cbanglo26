@@ -9,20 +9,19 @@ use PDO;
 /**
  * Configurações da campanha persistidas no banco (tabela configuracoes),
  * com cache em arquivo para evitar consultas repetidas.
+ * Compatível com PHP 7.1+
  */
 final class Config
 {
-    /** @var array<string, string>|null */
-    private static ?array $cache = null;
+    /** @var array|null */
+    private static $cache = null;
 
-    private static function cacheFile(): string
-    {
+    private static function cacheFile() {
         return BASE_PATH . '/storage/cache/config.json';
     }
 
-    /** @return array<string, string> */
-    public static function all(): array
-    {
+    /** @return array */
+    public static function all() {
         if (self::$cache !== null) {
             return self::$cache;
         }
@@ -36,13 +35,16 @@ final class Config
         return self::$cache = self::reload();
     }
 
-    /** @return array<string, string> */
-    public static function reload(): array
-    {
+    /** @return array */
+    public static function reload() {
         $rows = Database::pdo()
             ->query('SELECT chave, valor FROM configuracoes')
             ->fetchAll(PDO::FETCH_KEY_PAIR);
-        self::$cache = array_map(strval(...), $rows);
+        // Convert array values to string (instead of strval(...) which is PHP 8.1+)
+        self::$cache = array();
+        foreach ($rows as $k => $v) {
+            self::$cache[$k] = (string) $v;
+        }
         $dir = dirname(self::cacheFile());
         if (is_dir($dir) && is_writable($dir)) {
             @file_put_contents(
@@ -54,13 +56,12 @@ final class Config
         return self::$cache;
     }
 
-    public static function get(string $key, string $default = ''): string
-    {
-        return self::all()[$key] ?? $default;
+    public static function get($key, $default = '') {
+        $all = self::all();
+        return isset($all[$key]) ? $all[$key] : $default;
     }
 
-    public static function set(string $key, string $value): void
-    {
+    public static function set($key, $value) {
         $pdo = Database::pdo();
         if (Database::isSqlite()) {
             $sql = 'INSERT INTO configuracoes (chave, valor) VALUES (:c, :v)
@@ -77,8 +78,7 @@ final class Config
     }
 
     /** Inscrições abertas? Considera flag manual e o período configurado. */
-    public static function inscricoesAbertas(): bool
-    {
+    public static function inscricoesAbertas() {
         if (self::get('inscricoes_abertas', '1') !== '1') {
             return false;
         }
@@ -103,8 +103,7 @@ final class Config
         return true;
     }
 
-    public static function clearCache(): void
-    {
+    public static function clearCache() {
         self::$cache = null;
         @unlink(self::cacheFile());
     }

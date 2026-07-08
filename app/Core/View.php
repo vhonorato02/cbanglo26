@@ -6,11 +6,11 @@ namespace App\Core;
 
 /**
  * Renderizador de views PHP com layout.
+ * Compatível com PHP 7.1+
  */
 final class View
 {
-    public static function render(string $template, array $data = [], ?string $layout = null): string
-    {
+    public static function render($template, $data = [], $layout = null) {
         $file = BASE_PATH . '/app/Views/' . $template . '.php';
         if (!is_file($file)) {
             throw new \RuntimeException("View não encontrada: {$template}");
@@ -32,8 +32,7 @@ final class View
         return $content;
     }
 
-    public static function show(string $template, array $data = [], ?string $layout = null): void
-    {
+    public static function show($template, $data = [], $layout = null) {
         echo self::render($template, $data, $layout);
     }
 }

@@ -6,10 +6,11 @@ namespace App\Core;
 
 /**
  * Sessão com cookies endurecidos (HttpOnly, SameSite, Secure em HTTPS).
+ * Compatível com PHP 7.1+
  */
 final class Session
 {
-    public static function start(): void
+    public static function start()
     {
         if (session_status() === PHP_SESSION_ACTIVE) {
             return;
@@ -32,58 +33,52 @@ final class Session
         session_start();
     }
 
-    public static function isHttps(): bool
-    {
-        if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+    public static function isHttps() {
+        if (!empty($_SERVER['HTTPS']) && isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
             return true;
         }
-        return ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
+        return (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) ? $_SERVER['HTTP_X_FORWARDED_PROTO'] : '') === 'https';
     }
 
-    public static function regenerate(): void
-    {
+    public static function regenerate() {
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_regenerate_id(true);
         }
     }
 
-    public static function get(string $key, mixed $default = null): mixed
-    {
-        return $_SESSION[$key] ?? $default;
+    public static function get($key, $default = null) {
+        return isset($_SESSION[$key]) ? $_SESSION[$key] : $default;
     }
 
-    public static function set(string $key, mixed $value): void
-    {
+    public static function set($key, $value) {
         $_SESSION[$key] = $value;
     }
 
-    public static function remove(string $key): void
-    {
+    public static function remove($key) {
         unset($_SESSION[$key]);
     }
 
     /** Lê e remove (flash message). */
-    public static function pull(string $key, mixed $default = null): mixed
-    {
-        $value = $_SESSION[$key] ?? $default;
+    public static function pull($key, $default = null) {
+        $value = isset($_SESSION[$key]) ? $_SESSION[$key] : $default;
         unset($_SESSION[$key]);
         return $value;
     }
 
-    public static function destroy(): void
-    {
+    public static function destroy() {
         if (session_status() === PHP_SESSION_ACTIVE) {
             $_SESSION = [];
             if (ini_get('session.use_cookies')) {
                 $p = session_get_cookie_params();
-                setcookie(session_name(), '', [
-                    'expires' => time() - 42000,
-                    'path' => $p['path'],
-                    'domain' => $p['domain'],
-                    'secure' => $p['secure'],
-                    'httponly' => $p['httponly'],
-                    'samesite' => $p['samesite'],
-                ]);
+                setcookie(
+                    session_name(),
+                    '',
+                    time() - 42000,
+                    $p['path'],
+                    $p['domain'],
+                    $p['secure'],
+                    $p['httponly']
+                );
             }
             session_destroy();
         }

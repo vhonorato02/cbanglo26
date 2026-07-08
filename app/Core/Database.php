@@ -9,30 +9,30 @@ use PDO;
 /**
  * Conexão PDO única. Suporta MySQL/MariaDB em produção e
  * SQLite nos testes automatizados.
+ * Compatível com PHP 7.1+
  */
 final class Database
 {
-    private static ?PDO $pdo = null;
+    /** @var PDO|null */
+    private static $pdo = null;
 
-    /** @var array<string, mixed>|null */
-    private static ?array $config = null;
+    /** @var array|null */
+    private static $config = null;
 
-    /** @param array<string, mixed> $config */
-    public static function configure(array $config): void
-    {
+    /** @param array $config */
+    public static function configure($config) {
         self::$config = $config;
         self::$pdo = null;
     }
 
-    public static function pdo(): PDO
-    {
+    public static function pdo() {
         if (self::$pdo instanceof PDO) {
             return self::$pdo;
         }
-        $cfg = self::$config ?? (require BASE_PATH . '/config/app.php')['db'];
+        $cfg = isset(self::$config) ? self::$config : (require BASE_PATH . '/config/app.php')['db'];
 
-        if (($cfg['driver'] ?? 'mysql') === 'sqlite') {
-            $pdo = new PDO('sqlite:' . ($cfg['sqlite_path'] ?? ':memory:'));
+        if ((isset($cfg['driver']) ? $cfg['driver'] : 'mysql') === 'sqlite') {
+            $pdo = new PDO('sqlite:' . (isset($cfg['sqlite_path']) ? $cfg['sqlite_path'] : ':memory:'));
             $pdo->exec('PRAGMA foreign_keys = ON');
         } else {
             $dsn = sprintf(
@@ -54,8 +54,7 @@ final class Database
     }
 
     /** Executa um callback dentro de uma transação. */
-    public static function transaction(callable $callback): mixed
-    {
+    public static function transaction($callback) {
         $pdo = self::pdo();
         $pdo->beginTransaction();
         try {
@@ -70,14 +69,12 @@ final class Database
         }
     }
 
-    public static function isSqlite(): bool
-    {
+    public static function isSqlite() {
         return self::pdo()->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite';
     }
 
     /** Expressão de data/hora atual compatível com MySQL e SQLite. */
-    public static function now(): string
-    {
+    public static function now() {
         return date('Y-m-d H:i:s');
     }
 }

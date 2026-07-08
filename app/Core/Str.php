@@ -6,20 +6,19 @@ namespace App\Core;
 
 /**
  * Utilitários de string: normalização, slug e protocolo.
+ * Compatível com PHP 7.1+
  */
 final class Str
 {
     /** Normaliza espaços e remove caracteres de controle. */
-    public static function clean(string $value): string
-    {
+    public static function clean($value) {
         $value = preg_replace('/[\x00-\x1F\x7F]/u', '', $value) ?? '';
         $value = preg_replace('/\s+/u', ' ', $value) ?? '';
         return trim($value);
     }
 
     /** Slug ASCII minúsculo (para chaves de duplicidade). */
-    public static function slug(string $value): string
-    {
+    public static function slug($value) {
         $value = mb_strtolower(self::clean($value), 'UTF-8');
         if (function_exists('transliterator_transliterate')) {
             $value = transliterator_transliterate('Any-Latin; Latin-ASCII', $value) ?? $value;
@@ -41,10 +40,9 @@ final class Str
      * Protocolo único e não previsível: CB26-XXXX-XXXX.
      * Alfabeto sem caracteres ambíguos (0/O, 1/I/L).
      */
-    public static function protocolo(string $prefix = 'CB26'): string
-    {
+    public static function protocolo($prefix = 'CB26') {
         $alphabet = '23456789ABCDEFGHJKMNPQRSTUVWXYZ';
-        $block = static function () use ($alphabet): string {
+        $block = function () use ($alphabet) {
             $out = '';
             for ($i = 0; $i < 4; $i++) {
                 $out .= $alphabet[random_int(0, strlen($alphabet) - 1)];
@@ -55,8 +53,7 @@ final class Str
     }
 
     /** Mantém somente dígitos (telefones). */
-    public static function digits(string $value): string
-    {
+    public static function digits($value) {
         return preg_replace('/\D+/', '', $value) ?? '';
     }
 }
