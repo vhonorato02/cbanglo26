@@ -14,11 +14,11 @@ return [
 
     'db' => [
         'driver'   => Env::get('DB_DRIVER', 'mysql'),
-        'host'     => Env::get('DB_HOST', 'localhost'),
+        'host'     => Env::get('DB_HOST', 'agenciamd.com.br'),
         'port'     => Env::get('DB_PORT', '3306'),
-        'database' => Env::get('DB_DATABASE', ''),
-        'username' => Env::get('DB_USERNAME', ''),
-        'password' => Env::get('DB_PASSWORD', ''),
+        'database' => Env::get('DB_DATABASE', 'agenciam_cbanglo26'),
+        'username' => Env::get('DB_USERNAME', 'agenciam_agenciamdcom'),
+        'password' => Env::get('DB_PASSWORD', '$2y$10$KMP3NW4RSrGSALYHaUcDAeEEteWYJSyHTfq8KvQ1hDgVGdSjnnWBe'),
         // Usado apenas em testes (driver sqlite)
         'sqlite_path' => Env::get('DB_SQLITE_PATH', ':memory:'),
     ],
