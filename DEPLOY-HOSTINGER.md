@@ -1,51 +1,24 @@
-# Publicação Na Hostinger
+# Publicação Na Hostinger Sem SSH
 
-## 1. Preparar O hPanel
+O pacote `cbanglo26-hostinger-pronto.zip` já contém o site compilado, o `.env` de produção, a configuração SMTP e um instalador protegido.
 
-1. Em **Sites > Gerenciar > Configuração do PHP**, selecione PHP 8.2 ou 8.3.
-2. Confirme as extensões `pdo_mysql`, `mbstring` e `openssl`.
-3. Crie um banco MySQL vazio e anote nome, usuário e senha.
-4. Abra o phpMyAdmin desse banco e importe `database/schema.sql` uma única vez.
+## Publicar
 
-## 2. Enviar Os Arquivos
+1. No hPanel, abra **Bancos de dados MySQL** e crie um banco vazio.
+2. Abra o **Gerenciador de Arquivos**, entre em `public_html`, envie o ZIP e clique em **Extrair**.
+3. Abra `COMO-PUBLICAR.txt`, que está dentro do ZIP.
+4. Acesse o endereço privado de instalação indicado nesse arquivo.
+5. Cole o nome do banco, o usuário e a senha exibidos pelo hPanel.
+6. Clique em **Ativar agora**.
 
-Envie o conteúdo do projeto para `public_html`, mantendo `.htaccess` na raiz e a pasta `public` dentro dela. O `.htaccess` encaminha as URLs para `public/` e bloqueia o acesso às pastas internas.
+O instalador testa a conexão, cria todas as tabelas, inclui as escolas, séries, datas, perguntas e o administrador inicial. Depois ele se desativa automaticamente.
 
-Podem ser omitidos do upload: `.git`, `.github`, `node_modules`, `tests`, `docs` e `.claude`.
+## Primeiro Login
 
-## 3. Criar O `.env`
+- Endereço: `/admin`
+- Usuário: `admin`
+- Senha inicial: `cbanglo26##`
 
-Copie `.env.example` para `.env` dentro de `public_html` e ajuste:
+No primeiro acesso, abra **Usuários** e troque a senha inicial.
 
-```dotenv
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://SEU-DOMINIO
-APP_KEY=COLE-UMA-CHAVE-ALEATORIA-DE-64-CARACTERES
-
-DB_DRIVER=mysql
-DB_HOST=localhost
-DB_PORT=3306
-DB_DATABASE=NOME-DO-BANCO
-DB_USERNAME=USUARIO-DO-BANCO
-DB_PASSWORD=SENHA-DO-BANCO
-```
-
-Mantenha no mesmo arquivo a configuração SMTP já indicada em `.env.example` e preencha `SMTP_PASSWORD`. O `.env` não deve ser enviado ao GitHub nem ficar acessível publicamente.
-
-Para gerar `APP_KEY` pelo terminal:
-
-```bash
-php -r "echo bin2hex(random_bytes(32)), PHP_EOL;"
-```
-
-## 4. Permissões E Validação
-
-1. Garanta permissão de escrita do PHP em `storage/cache` e `storage/logs` (`755` normalmente basta na Hostinger).
-2. Com SSH, rode `php tools/preflight.php`.
-3. Abra a página inicial, faça uma inscrição real de teste e confira o e-mail e o comprovante.
-4. Entre em `/admin` com `admin` e a senha inicial informada para o projeto.
-5. Em **Usuários**, troque a senha inicial antes de divulgar a página.
-6. Teste **Inscrições**, filtros, detalhes e **Exportar CSV**.
-
-Se as rotas internas retornarem 404, confirme que os dois arquivos `.htaccess` foram enviados. Se aparecer erro de banco, confira os dados em `.env` e se `database/schema.sql` foi importado no banco vazio correto.
+Não é necessário usar SSH, terminal, Composer, Node.js ou phpMyAdmin.

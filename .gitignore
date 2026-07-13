@@ -23,6 +23,8 @@ database/*.db
 *.dump
 dump*.sql
 backup*/
+*hostinger*.zip
+storage/installed.lock
 
 # Sistema operacional / editor
 .DS_Store

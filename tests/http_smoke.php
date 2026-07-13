@@ -117,6 +117,9 @@ check('landing contém calendário por unidade', str_contains($r['body'], '26 de
 check('cabeçalho CSP presente', isset($r['headers']['content-security-policy']));
 check('cabeçalho nosniff presente', ($r['headers']['x-content-type-options'] ?? '') === 'nosniff');
 
+$rInstalador = req('GET', "{$base}/instalar");
+check('instalador sem token não fica exposto', $rInstalador['status'] === 404, "status {$rInstalador['status']}");
+
 $csrf = extrairCsrf($r['body']);
 check('token CSRF presente no formulário', $csrf !== '');
 

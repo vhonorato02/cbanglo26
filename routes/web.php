@@ -11,6 +11,7 @@ use App\Controllers\Admin\LogsController;
 use App\Controllers\Admin\UsuariosController;
 use App\Controllers\ComprovanteController;
 use App\Controllers\HomeController;
+use App\Controllers\InstallController;
 use App\Controllers\InscricaoController;
 use App\Controllers\SetupController;
 use App\Core\Auth;
@@ -34,6 +35,10 @@ $router->post('/inscricao', [InscricaoController::class, 'store']);
 $router->get('/comprovante/{protocolo}', [ComprovanteController::class, 'show']);
 $router->get('/consulta', [ComprovanteController::class, 'consulta']);
 $router->post('/consulta', [ComprovanteController::class, 'consultar']);
+
+// ---------- Instalação pelo navegador (desativada após o primeiro uso) ----------
+$router->get('/instalar', [InstallController::class, 'form']);
+$router->post('/instalar', [InstallController::class, 'store']);
 
 // ---------- Setup (primeiro administrador) ----------
 $router->get('/setup', [SetupController::class, 'form']);

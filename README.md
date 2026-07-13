@@ -43,40 +43,15 @@ O envio de confirmações usa SMTP com SSL implícito na porta 465. O arquivo `.
 
 O POP3 com SSL na porta 995 serve apenas para configurar a caixa em um cliente de e-mail. A aplicação envia confirmações, mas não lê nem remove mensagens da caixa de entrada.
 
-## Deploy Na Hostinger
+## Deploy Na Hostinger Sem SSH
 
-Siga o checklist completo em [`DEPLOY-HOSTINGER.md`](DEPLOY-HOSTINGER.md). O resumo é:
+O pacote de publicação inclui os assets compilados, o `.env` de produção e o instalador do banco. Para gerá-lo:
 
-1. Rode o build dos assets:
-
-```bash
-npm install
-npm run build
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/build-hostinger-package.ps1
 ```
 
-2. Crie um banco vazio e importe `database/schema.sql` pelo phpMyAdmin.
-
-3. Configure `.env` a partir de `.env.example`, com `APP_URL`, `APP_KEY`, `DB_DRIVER=mysql` e as credenciais reais do banco e do e-mail.
-
-4. Envie para a hospedagem:
-
-- `app/`
-- `bootstrap/`
-- `config/`
-- `database/`
-- `public/`
-- `resources/`
-- `routes/`
-- `storage/`
-- `.htaccess`
-
-Não envie `tests/`, `node_modules/`, `.git/` nem o `.env` usado no preview local. Depois do primeiro login, altere a senha inicial em **Usuários**.
-
-Com acesso SSH, valide a hospedagem antes de abrir as inscrições:
-
-```bash
-php tools/preflight.php
-```
+Depois, siga [`DEPLOY-HOSTINGER.md`](DEPLOY-HOSTINGER.md). Basta criar um banco vazio no hPanel, extrair o ZIP em `public_html` e abrir o endereço privado indicado em `COMO-PUBLICAR.txt`. Não é necessário SSH nem phpMyAdmin.
 
 ## Testes
 
