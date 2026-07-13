@@ -75,7 +75,34 @@ function extrairCsrf(string $html): string
     return preg_match('/name="_csrf" value="([^"]+)"/', $html, $m) ? $m[1] : '';
 }
 
+function limparTentativasLoginLocal(string $base): void
+{
+    $host = parse_url($base, PHP_URL_HOST);
+    if (!in_array($host, ['127.0.0.1', 'localhost', '::1'], true)) {
+        return;
+    }
+
+    static $bootstrapped = false;
+    if (!$bootstrapped) {
+        require_once __DIR__ . '/../bootstrap/app.php';
+        $bootstrapped = true;
+    }
+    \App\Core\Database::pdo()->exec('DELETE FROM login_tentativas');
+}
+
 echo "\nTeste de fumaça HTTP — {$base}\n=================================\n";
+limparTentativasLoginLocal($base);
+
+$runNum = (int) (microtime(true) * 1000000);
+$runSuffix = '';
+for ($i = 0; $i < 6; $i++) {
+    $runSuffix .= chr(65 + ($runNum % 26));
+    $runNum = intdiv($runNum, 26);
+}
+$alunoNome = 'Henrique Alves ' . $runSuffix;
+$emailResponsavel = 'carla.moreira.' . strtolower($runSuffix) . '@example.com';
+$loginInvalido = 'login-' . strtolower($runSuffix);
+$loginBloqueio = 'bloqueio-' . strtolower($runSuffix);
 
 // ---------- Landing page ----------
 $r = req('GET', "{$base}/");
@@ -97,7 +124,7 @@ $inscricao = [
     '_csrf' => $csrf,
     '_ts' => (string) (time() - 30),
     'website' => '',
-    'aluno_nome' => 'Henrique Alves Moreira',
+    'aluno_nome' => $alunoNome,
     'aluno_nascimento' => '15/04/2014',
     'serie_id' => '1',
     'escola_id' => '2',
@@ -106,7 +133,7 @@ $inscricao = [
     'responsavel_nome' => 'Carla Alves Moreira',
     'parentesco' => 'Mãe',
     'whatsapp' => '(12) 98811-2233',
-    'email' => 'carla.moreira@example.com',
+    'email' => $emailResponsavel,
     'cidade' => 'Guaratinguetá',
     'consent_privacidade' => '1',
     'consent_contato' => '1',
@@ -155,7 +182,7 @@ check('duplicidade retorna 409', $r['status'] === 409, "status {$r['status']}");
 // ---------- Comprovante ----------
 $r = req('GET', "{$base}/comprovante/{$protocolo}");
 check('comprovante responde 200 com o protocolo', $r['status'] === 200 && str_contains($r['body'], $protocolo));
-check('comprovante da sessão mostra dados completos', str_contains($r['body'], 'Henrique Alves Moreira'));
+check('comprovante da sessão mostra dados completos', str_contains($r['body'], $alunoNome));
 check('comprovante mostra a data escolhida', str_contains($r['body'], '17 de outubro'));
 
 $r = req('GET', "{$base}/comprovante/CB26-ZZZZ-ZZZZ");
@@ -168,7 +195,7 @@ $csrfConsulta = extrairCsrf($r['body']);
 $r = req('POST', "{$base}/consulta", ['_csrf' => $csrfConsulta, 'protocolo' => $protocolo, 'email' => 'errado@example.com']);
 check('consulta com e-mail errado não autoriza', $r['status'] === 302
     && str_contains($r['headers']['location'] ?? '', 'consulta'));
-$r = req('POST', "{$base}/consulta", ['_csrf' => $csrfConsulta, 'protocolo' => $protocolo, 'email' => 'carla.moreira@example.com']);
+$r = req('POST', "{$base}/consulta", ['_csrf' => $csrfConsulta, 'protocolo' => $protocolo, 'email' => $emailResponsavel]);
 check('consulta correta redireciona ao comprovante', str_contains($r['headers']['location'] ?? '', 'comprovante'));
 
 // ---------- Admin sem autenticação ----------
@@ -184,7 +211,7 @@ $r = req('GET', "{$base}/admin/login");
 check('tela de login responde 200', $r['status'] === 200);
 $csrfLogin = extrairCsrf($r['body']);
 
-$r = req('POST', "{$base}/admin/login", ['_csrf' => $csrfLogin, 'email' => 'admin', 'senha' => 'senha-errada']);
+$r = req('POST', "{$base}/admin/login", ['_csrf' => $csrfLogin, 'email' => $loginInvalido, 'senha' => 'senha-errada']);
 check('login inválido volta para o login', str_contains($r['headers']['location'] ?? '', 'admin/login'));
 
 $r = req('POST', "{$base}/admin/login", ['_csrf' => $csrfLogin, 'email' => 'admin', 'senha' => 'cbanglo26##']);
@@ -200,18 +227,19 @@ check('busca no painel encontra a inscrição', $r['status'] === 200 && str_cont
 $r = req('GET', "{$base}/admin/inscricoes/exportar");
 check('exportação CSV autenticada responde CSV', $r['status'] === 200
     && str_contains($r['headers']['content-type'] ?? '', 'csv')
-    && str_contains($r['body'], 'Henrique Alves Moreira'));
+    && str_contains($r['body'], $alunoNome));
 
 // ---------- Bloqueio de tentativas ----------
 $cookieJar = [];
 $r = req('GET', "{$base}/admin/login");
 $csrfLogin = extrairCsrf($r['body']);
 for ($i = 0; $i < 5; $i++) {
-    req('POST', "{$base}/admin/login", ['_csrf' => $csrfLogin, 'email' => 'bloqueio@local.test', 'senha' => 'x']);
+    req('POST', "{$base}/admin/login", ['_csrf' => $csrfLogin, 'email' => $loginBloqueio, 'senha' => 'x']);
 }
-$r = req('POST', "{$base}/admin/login", ['_csrf' => $csrfLogin, 'email' => 'bloqueio@local.test', 'senha' => 'x']);
+$r = req('POST', "{$base}/admin/login", ['_csrf' => $csrfLogin, 'email' => $loginBloqueio, 'senha' => 'x']);
 $r2 = req('GET', "{$base}/admin/login");
 check('após 5 falhas a mensagem de bloqueio aparece', str_contains($r2['body'], 'bloqueado'));
+limparTentativasLoginLocal($base);
 
 // ---------- 404 ----------
 $r = req('GET', "{$base}/pagina-que-nao-existe");

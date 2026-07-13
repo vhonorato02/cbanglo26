@@ -8,7 +8,7 @@ use App\Models\AdminUser;
 use App\Models\LoginAttempt;
 
 T::test('senha é armazenada com password_hash e verificada', function () {
-    $id = AdminUser::create('Admin Teste', 'admin@teste.com', 'senha-super-secreta');
+    $id = AdminUser::create('Admin Teste', 'admin', 'senha-super-secreta');
     $user = AdminUser::find($id);
     T::assert($user['senha_hash'] !== 'senha-super-secreta', 'senha em claro!');
     T::assert(password_verify('senha-super-secreta', $user['senha_hash']));
@@ -19,9 +19,9 @@ T::test('login válido autentica e regenera sessão', function () {
     if (session_status() !== PHP_SESSION_ACTIVE) {
         @session_start();
     }
-    AdminUser::create('Admin Teste', 'admin@teste.com', 'senha-super-secreta');
-    $resultado = @Auth::attempt('Admin@Teste.com', 'senha-super-secreta');
-    T::assertEquals('ok', $resultado, 'login válido (e-mail com caixa diferente)');
+    AdminUser::create('Admin Teste', 'admin', 'senha-super-secreta');
+    $resultado = @Auth::attempt('Admin', 'senha-super-secreta');
+    T::assertEquals('ok', $resultado, 'login válido com usuário simples');
     T::assert(Auth::check(), 'sessão não autenticada');
     T::assert(Auth::id() !== null);
     @Auth::logout();
@@ -31,8 +31,8 @@ T::test('login inválido é recusado', function () {
     if (session_status() !== PHP_SESSION_ACTIVE) {
         @session_start();
     }
-    AdminUser::create('Admin Teste', 'admin@teste.com', 'senha-super-secreta');
-    T::assertEquals('invalid', @Auth::attempt('admin@teste.com', 'senha-errada'));
+    AdminUser::create('Admin Teste', 'admin', 'senha-super-secreta');
+    T::assertEquals('invalid', @Auth::attempt('admin', 'senha-errada'));
     T::assert(!Auth::check());
 });
 
@@ -40,20 +40,20 @@ T::test('usuário inativo não entra', function () {
     if (session_status() !== PHP_SESSION_ACTIVE) {
         @session_start();
     }
-    $id = AdminUser::create('Admin Teste', 'admin@teste.com', 'senha-super-secreta', 0);
-    T::assertEquals('invalid', @Auth::attempt('admin@teste.com', 'senha-super-secreta'));
+    $id = AdminUser::create('Admin Teste', 'admin', 'senha-super-secreta', 0);
+    T::assertEquals('invalid', @Auth::attempt('admin', 'senha-super-secreta'));
 });
 
 T::test('bloqueio temporário após 5 tentativas falhas', function () {
     if (session_status() !== PHP_SESSION_ACTIVE) {
         @session_start();
     }
-    AdminUser::create('Admin Teste', 'admin@teste.com', 'senha-super-secreta');
+    AdminUser::create('Admin Teste', 'admin', 'senha-super-secreta');
     for ($i = 0; $i < 5; $i++) {
-        T::assertEquals('invalid', @Auth::attempt('admin@teste.com', 'errada'));
+        T::assertEquals('invalid', @Auth::attempt('admin', 'errada'));
     }
     // 6ª tentativa: bloqueado mesmo com a senha certa
-    T::assertEquals('locked', @Auth::attempt('admin@teste.com', 'senha-super-secreta'));
+    T::assertEquals('locked', @Auth::attempt('admin', 'senha-super-secreta'));
 });
 
 T::test('limpeza de tentativas antigas', function () {

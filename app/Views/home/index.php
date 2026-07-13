@@ -65,7 +65,7 @@ $contatosUnidades = [
         <h1 id="hero-titulo" class="hero-title"><?= e($campanha) ?></h1>
         <p class="hero-sub"><?= e($chamada !== '' ? $chamada : ($descricao !== '' ? $descricao : 'Garanta a participação do estudante na prova de bolsas.')) ?></p>
 
-        <p class="hero-prova"><strong>Prova:</strong> cada escola tem sua data. O aluno escolhe conforme a disponibilidade da unidade. <?= e($inscricoesTexto) ?>.</p>
+        <p class="hero-prova"><strong>Provas às 9h:</strong> Anglo Pinda em 26 de setembro ou 17 de outubro; Fênix, Drummond e Anglo Cruzeiro em 17 de outubro. <?= e($inscricoesTexto) ?>.</p>
         <div class="hero-schedule" aria-label="Datas das provas por unidade">
           <?php foreach ($calendarioProvas as $item): ?>
           <p>
@@ -148,36 +148,38 @@ $contatosUnidades = [
               </div>
             </div>
 
-            <div class="field <?= isset($formErrors['escola_id']) ? 'has-error' : '' ?>">
-              <label for="escola_id">Unidade desejada</label>
-              <select id="escola_id" name="escola_id" required aria-describedby="erro-escola_id">
-                <option value="">Selecione</option>
-                <?php foreach ($escolas as $escola): ?>
-                <option value="<?= (int) $escola['id'] ?>" <?= (string) ($old['escola_id'] ?? '') === (string) $escola['id'] ? 'selected' : '' ?>>
-                  <?= e($escola['nome']) ?><?= ($escola['cidade'] ?? '') !== '' ? ' — ' . e($escola['cidade']) : '' ?>
-                </option>
-                <?php endforeach; ?>
-              </select>
-              <p class="field-error" id="erro-escola_id"><?= e($formErrors['escola_id'] ?? '') ?></p>
-            </div>
-
-            <div class="field <?= isset($formErrors['data_prova']) ? 'has-error' : '' ?>">
-              <label for="data_prova">Data da prova</label>
-              <select id="data_prova" name="data_prova" required
-                      data-provas='<?= e($provasJson) ?>'
-                      data-selected="<?= e($old['data_prova'] ?? '') ?>"
-                      aria-describedby="hint-data_prova erro-data_prova">
-                <option value="">Selecione a unidade primeiro</option>
-                <?php foreach ($provasPorEscola as $escolaId => $grupo): ?>
-                  <?php foreach ($grupo['datas'] as $opcao): ?>
-                  <option value="<?= e($opcao['data']) ?>" data-escola-id="<?= e((string) $escolaId) ?>" <?= (string) ($old['data_prova'] ?? '') === (string) $opcao['data'] && (string) ($old['escola_id'] ?? '') === (string) $escolaId ? 'selected' : '' ?>>
-                    <?= e($grupo['escola']) ?> · <?= e($opcao['label']) ?>
+            <div class="field-row">
+              <div class="field <?= isset($formErrors['escola_id']) ? 'has-error' : '' ?>">
+                <label for="escola_id">Unidade desejada</label>
+                <select id="escola_id" name="escola_id" required aria-describedby="erro-escola_id">
+                  <option value="">Selecione</option>
+                  <?php foreach ($escolas as $escola): ?>
+                  <option value="<?= (int) $escola['id'] ?>" <?= (string) ($old['escola_id'] ?? '') === (string) $escola['id'] ? 'selected' : '' ?>>
+                    <?= e($escola['nome']) ?><?= ($escola['cidade'] ?? '') !== '' ? ' — ' . e($escola['cidade']) : '' ?>
                   </option>
                   <?php endforeach; ?>
-                <?php endforeach; ?>
-              </select>
-              <p class="field-hint" id="hint-data_prova">As datas aparecem de acordo com a unidade escolhida.</p>
-              <p class="field-error" id="erro-data_prova"><?= e($formErrors['data_prova'] ?? '') ?></p>
+                </select>
+                <p class="field-error" id="erro-escola_id"><?= e($formErrors['escola_id'] ?? '') ?></p>
+              </div>
+
+              <div class="field <?= isset($formErrors['data_prova']) ? 'has-error' : '' ?>">
+                <label for="data_prova">Data da prova</label>
+                <select id="data_prova" name="data_prova" required
+                        data-provas='<?= e($provasJson) ?>'
+                        data-selected="<?= e($old['data_prova'] ?? '') ?>"
+                        aria-describedby="hint-data_prova erro-data_prova">
+                  <option value="">Selecione a unidade primeiro</option>
+                  <?php foreach ($provasPorEscola as $escolaId => $grupo): ?>
+                    <?php foreach ($grupo['datas'] as $opcao): ?>
+                    <option value="<?= e($opcao['data']) ?>" data-escola-id="<?= e((string) $escolaId) ?>" <?= (string) ($old['data_prova'] ?? '') === (string) $opcao['data'] && (string) ($old['escola_id'] ?? '') === (string) $escolaId ? 'selected' : '' ?>>
+                      <?= e($grupo['escola']) ?> · <?= e($opcao['label']) ?>
+                    </option>
+                    <?php endforeach; ?>
+                  <?php endforeach; ?>
+                </select>
+                <p class="field-hint" id="hint-data_prova">As datas aparecem de acordo com a unidade escolhida.</p>
+                <p class="field-error" id="erro-data_prova"><?= e($formErrors['data_prova'] ?? '') ?></p>
+              </div>
             </div>
 
             <div class="field <?= isset($formErrors['escola_atual']) ? 'has-error' : '' ?>">
@@ -315,28 +317,7 @@ $contatosUnidades = [
     </div>
   </section>
 
-  <section class="section section-compact section-schedule" aria-labelledby="datas-prova-titulo">
-    <div class="container">
-      <div class="section-heading section-heading-row">
-        <div>
-          <p class="section-kicker">Datas da prova</p>
-          <h2 class="section-title" id="datas-prova-titulo">Escolha conforme a unidade</h2>
-        </div>
-        <p class="section-lead">O formulário só libera as datas disponíveis para a escola selecionada.</p>
-      </div>
-      <div class="schedule-list">
-        <?php foreach ($calendarioProvas as $item): ?>
-        <article class="schedule-card">
-          <p class="schedule-unit"><?= e($item['unidade']) ?></p>
-          <p class="schedule-date"><?= e($item['datas']) ?></p>
-          <p class="schedule-hour"><?= e($item['hora']) ?></p>
-        </article>
-        <?php endforeach; ?>
-      </div>
-    </div>
-  </section>
-
-  <section class="section section-soft" id="contato-unidades" aria-labelledby="contato-unidades-titulo">
+  <section class="section section-compact section-soft" id="contato-unidades" aria-labelledby="contato-unidades-titulo">
     <div class="container">
       <div class="section-heading">
         <h2 class="section-title" id="contato-unidades-titulo">Fale conosco</h2>

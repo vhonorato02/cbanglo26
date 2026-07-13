@@ -63,8 +63,8 @@ $ativo = function ($prefix) use ($uri) {
   </aside>
   <div class="admin-main">
     <header class="admin-topbar">
-      <button class="admin-menu-toggle" type="button" aria-expanded="false" aria-controls="admin-sidebar">
-        <span aria-hidden="true">Menu</span><span class="visually-hidden">Abrir menu</span>
+      <button class="admin-menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="admin-sidebar">
+        <span aria-hidden="true">Menu</span>
       </button>
       <a class="btn-link" href="<?= e(url('/')) ?>" target="_blank" rel="noopener">Ver site</a>
     </header>
