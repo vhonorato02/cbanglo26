@@ -31,6 +31,12 @@ T::test('escape de saída neutraliza XSS', function () {
     T::assert(str_contains($escapado, '&lt;script&gt;'));
 });
 
+T::test('exportação CSV neutraliza fórmulas do Excel', function () {
+    T::assertEquals("'=2+2", csv_cell('=2+2'));
+    T::assertEquals("'@comando", csv_cell('@comando'));
+    T::assertEquals('Maria Clara', csv_cell('Maria Clara'));
+});
+
 T::test('CSRF: token válido passa, token errado e vazio falham', function () {
     if (session_status() !== PHP_SESSION_ACTIVE) {
         @session_start();

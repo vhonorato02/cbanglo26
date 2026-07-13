@@ -86,7 +86,7 @@ document.querySelectorAll('[data-mask]').forEach((input) => {
     const datas = grupo && Array.isArray(grupo.datas) ? grupo.datas : [];
 
     dataSelect.innerHTML = '';
-    dataSelect.appendChild(criarOpcao('', escolaId ? 'Escolha a data' : 'Selecione a unidade primeiro'));
+    dataSelect.appendChild(criarOpcao('', escolaId ? 'Escolha a data' : 'Escolha a unidade'));
 
     datas.forEach((opcao) => {
       const opt = criarOpcao(opcao.data, opcao.label);
@@ -172,9 +172,11 @@ function validarCampo(el) {
   const erroEl = wrapper.querySelector('.field-error');
   if (valido) {
     wrapper.classList.remove('has-error');
+    el.setAttribute('aria-invalid', 'false');
     if (erroEl) erroEl.textContent = '';
   } else {
     wrapper.classList.add('has-error');
+    el.setAttribute('aria-invalid', 'true');
     if (erroEl) erroEl.textContent = mensagem;
   }
   return valido;
@@ -201,6 +203,11 @@ function validarCampo(el) {
       const num = Number(dot.dataset.stepDot);
       dot.classList.toggle('is-active', num === n);
       dot.classList.toggle('is-done', num < n);
+      if (num === n) {
+        dot.setAttribute('aria-current', 'step');
+      } else {
+        dot.removeAttribute('aria-current');
+      }
     });
     if (focar) {
       const etapa = etapas.find((et) => Number(et.dataset.step) === n);
@@ -323,6 +330,7 @@ function validarCampo(el) {
         const wrapper = campoWrapper(el);
         if (wrapper) {
           wrapper.classList.add('has-error');
+          el.setAttribute('aria-invalid', 'true');
           const erroEl = wrapper.querySelector('.field-error');
           if (erroEl) erroEl.textContent = msg;
         }
@@ -336,7 +344,7 @@ function validarCampo(el) {
       if (primeiraEtapaComErro) mostrarEtapa(primeiraEtapaComErro, false);
       alerta.focus();
     } catch (_) {
-      alerta.textContent = 'Falha de conexão. Verifique a internet e tente novamente.';
+      alerta.textContent = 'Não foi possível concluir agora. Verifique a conexão e tente novamente.';
       alerta.classList.remove('hidden');
       alerta.focus();
     } finally {

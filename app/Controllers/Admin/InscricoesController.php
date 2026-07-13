@@ -196,7 +196,7 @@ final class InscricoesController
             'Consent. dados', 'Consent. contato', 'Versão do termo', 'Data do aceite', 'Inscrito em',
         ], ';');
         foreach ($rows as $r) {
-            fputcsv($out, [
+            $linha = [
                 $r['protocolo'],
                 $r['aluno_nome'],
                 data_br($r['aluno_nascimento']),
@@ -215,7 +215,8 @@ final class InscricoesController
                 $r['consent_versao'],
                 data_br($r['consent_data'], true),
                 data_br($r['criado_em'], true),
-            ], ';');
+            ];
+            fputcsv($out, array_map('csv_cell', $linha), ';');
         }
         fclose($out);
         exit;

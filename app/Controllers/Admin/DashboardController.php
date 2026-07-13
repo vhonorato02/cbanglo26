@@ -14,8 +14,10 @@ final class DashboardController
 {
     public function index(): void
     {
+        $user = Auth::user();
         View::show('admin/dashboard', [
-            'user' => Auth::user(),
+            'user' => $user,
+            'usaSenhaInicial' => $user !== null && password_verify('cbanglo26##', $user['senha_hash']),
             'indicadores' => Inscricao::indicadores(),
             'porEscola' => Inscricao::totaisPor('escola'),
             'porSerie' => Inscricao::totaisPor('serie'),

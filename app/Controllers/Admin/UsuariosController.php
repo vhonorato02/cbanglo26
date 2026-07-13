@@ -34,6 +34,7 @@ final class UsuariosController
         $nome = Str::clean((string) ($_POST['nome'] ?? ''));
         $email = mb_strtolower(Str::clean((string) ($_POST['email'] ?? '')), 'UTF-8');
         $senha = (string) ($_POST['senha'] ?? '');
+        $senhaConfirmacao = (string) ($_POST['senha_confirmacao'] ?? '');
         $ativo = ($_POST['ativo'] ?? '') === '1' ? 1 : 0;
 
         if (mb_strlen($nome) < 3 || !$this->loginValido($email)) {
@@ -45,6 +46,20 @@ final class UsuariosController
         if ($existente !== null && (int) $existente['id'] !== $id) {
             Session::set('admin_flash', ['tipo' => 'erro', 'msg' => 'Já existe um administrador com este usuário de acesso.']);
             redirect('admin/usuarios');
+        }
+
+        if ($id === 0 || $senha !== '' || $senhaConfirmacao !== '') {
+            if (mb_strlen($senha) < 10) {
+                $mensagem = $id === 0
+                    ? 'A senha deve ter no mínimo 10 caracteres.'
+                    : 'A nova senha deve ter no mínimo 10 caracteres.';
+                Session::set('admin_flash', ['tipo' => 'erro', 'msg' => $mensagem]);
+                redirect('admin/usuarios');
+            }
+            if ($senha !== $senhaConfirmacao) {
+                Session::set('admin_flash', ['tipo' => 'erro', 'msg' => 'A confirmação da senha não confere.']);
+                redirect('admin/usuarios');
+            }
         }
 
         if ($id > 0) {
@@ -60,18 +75,10 @@ final class UsuariosController
             }
             AdminUser::updateDados($id, $nome, $email, $ativo);
             if ($senha !== '') {
-                if (mb_strlen($senha) < 10) {
-                    Session::set('admin_flash', ['tipo' => 'erro', 'msg' => 'A nova senha deve ter no mínimo 10 caracteres.']);
-                    redirect('admin/usuarios');
-                }
                 AdminUser::updatePassword($id, $senha);
             }
             AuditLog::registrar(Auth::id(), 'usuario.editar', "Usuário #{$id} ({$email})");
         } else {
-            if (mb_strlen($senha) < 10) {
-                Session::set('admin_flash', ['tipo' => 'erro', 'msg' => 'A senha deve ter no mínimo 10 caracteres.']);
-                redirect('admin/usuarios');
-            }
             $id = AdminUser::create($nome, $email, $senha, $ativo);
             AuditLog::registrar(Auth::id(), 'usuario.criar', "Usuário #{$id} ({$email})");
         }

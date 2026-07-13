@@ -11,6 +11,12 @@
   </span>
 </div>
 
+<?php if (!empty($usaSenhaInicial)): ?>
+<div class="alert alert-aviso" role="alert">
+  Antes de publicar, altere a senha inicial em <a href="<?= e(url('admin/usuarios')) ?>">Usuários</a>.
+</div>
+<?php endif; ?>
+
 <div class="stat-grid">
   <div class="stat-card">
     <p class="stat-num"><?= (int) $indicadores['total'] ?></p>

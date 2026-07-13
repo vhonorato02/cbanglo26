@@ -32,6 +32,14 @@ if (!function_exists('e')) {
     }
 }
 
+if (!function_exists('csv_cell')) {
+    /** Impede que o Excel interprete conteúdo exportado como fórmula. */
+    function csv_cell($value) {
+        $value = (string) $value;
+        return preg_match('/^[=+\-@\t\r]/', $value) ? "'" . $value : $value;
+    }
+}
+
 if (!function_exists('url')) {
     /** URL absoluta (usa APP_URL quando definida). */
     function url($path = '') {

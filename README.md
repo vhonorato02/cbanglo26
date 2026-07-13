@@ -4,7 +4,7 @@ Sistema PHP para inscrição online, comprovante e painel administrativo do Conc
 
 ## Requisitos
 
-- PHP 7.1 ou superior
+- PHP 7.1 ou superior; na Hostinger, use PHP 8.2 ou 8.3
 - MySQL 5.7/MariaDB 10.3 em produção, ou SQLite para preview local
 - Apache com `.htaccess` em hospedagem compartilhada
 - Node.js apenas para build dos assets CSS/JS
@@ -43,7 +43,9 @@ O envio de confirmações usa SMTP com SSL implícito na porta 465. O arquivo `.
 
 O POP3 com SSL na porta 995 serve apenas para configurar a caixa em um cliente de e-mail. A aplicação envia confirmações, mas não lê nem remove mensagens da caixa de entrada.
 
-## Deploy
+## Deploy Na Hostinger
+
+Siga o checklist completo em [`DEPLOY-HOSTINGER.md`](DEPLOY-HOSTINGER.md). O resumo é:
 
 1. Rode o build dos assets:
 
@@ -52,9 +54,9 @@ npm install
 npm run build
 ```
 
-2. Importe `database/schema.sql` no banco MySQL/MariaDB.
+2. Crie um banco vazio e importe `database/schema.sql` pelo phpMyAdmin.
 
-3. Configure `.env` a partir de `.env.example`, com `DB_DRIVER=mysql` e as credenciais reais do banco e do e-mail.
+3. Configure `.env` a partir de `.env.example`, com `APP_URL`, `APP_KEY`, `DB_DRIVER=mysql` e as credenciais reais do banco e do e-mail.
 
 4. Envie para a hospedagem:
 
@@ -68,7 +70,13 @@ npm run build
 - `storage/`
 - `.htaccess`
 
-Não envie `tests/`, `node_modules/`, `.git/` nem arquivos `.env` de outro ambiente.
+Não envie `tests/`, `node_modules/`, `.git/` nem o `.env` usado no preview local. Depois do primeiro login, altere a senha inicial em **Usuários**.
+
+Com acesso SSH, valide a hospedagem antes de abrir as inscrições:
+
+```bash
+php tools/preflight.php
+```
 
 ## Testes
 

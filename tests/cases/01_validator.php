@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Validation\InscricaoValidator;
+use App\Core\Provas;
 
 T::test('inscrição válida passa na validação', function () {
     $v = new InscricaoValidator();
@@ -32,6 +33,16 @@ T::test('data da prova precisa estar disponível para a unidade', function () {
     $v2 = new InscricaoValidator();
     T::assert(!$v2->validate(test_inscricao_valida(['escola_id' => '2', 'data_prova' => '2026-09-26'])), 'Fênix não aceita 26/09');
     T::assert(isset($v2->errors()['data_prova']));
+});
+
+T::test('calendário deixa de oferecer datas que já passaram', function () {
+    $opcoes = Provas::opcoesParaNome('Anglo Pinda', '2026-09-27');
+    T::assertEquals(1, count($opcoes));
+    T::assertEquals('2026-10-17', $opcoes[0]['data']);
+    T::assert(!Provas::dataPermitida('2026-09-26', ['nome' => 'Anglo Pinda'], '2026-09-27'));
+
+    $resumo = Provas::resumoCampanha('2026-09-27');
+    T::assertEquals('17 de outubro', $resumo[0]['datas']);
 });
 
 T::test('e-mail inválido é rejeitado', function () {

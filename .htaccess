@@ -2,8 +2,8 @@
 # Concurso de Bolsas — .htaccess da raiz do projeto
 #
 # Use este arquivo quando o projeto inteiro estiver dentro de
-# public_html (cenário comum na HostGator quando não é possível
-# apontar o document root para a pasta public/).
+# public_html (cenário padrão da Hostinger quando o document root
+# não pode ser apontado diretamente para a pasta public/).
 #
 # Ele encaminha todas as requisições para public/ e bloqueia o
 # acesso direto às pastas internas (app, config, storage etc.).
@@ -18,8 +18,10 @@ Options -Indexes
     RewriteRule ^(app|bootstrap|config|database|routes|storage|tests|resources|tools|docs|vendor|node_modules|\.github)(/|$) - [F,L]
     RewriteRule ^(\.env|\.env\..*|composer\.(json|lock)|package(-lock)?\.json)$ - [F,L]
 
-    # Encaminha tudo para a pasta public/
-    RewriteCond %{REQUEST_URI} !^/public/
+    # Evita reescrever novamente a rota interna public/.
+    RewriteRule ^public(?:/|$) - [L]
+
+    # Encaminha tudo para a pasta public/ sem expor esse prefixo na URL.
     RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
 

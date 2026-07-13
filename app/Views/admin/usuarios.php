@@ -27,6 +27,10 @@
       <div class="field-row">
         <div class="field"><label for="senha-<?= (int) $usuario['id'] ?>">Nova senha (deixe em branco para manter)</label>
           <input type="password" id="senha-<?= (int) $usuario['id'] ?>" name="senha" minlength="10" autocomplete="new-password"></div>
+        <div class="field"><label for="senha-confirmacao-<?= (int) $usuario['id'] ?>">Confirmar nova senha</label>
+          <input type="password" id="senha-confirmacao-<?= (int) $usuario['id'] ?>" name="senha_confirmacao" minlength="10" autocomplete="new-password"></div>
+      </div>
+      <div class="field-row">
         <div class="field"><label for="ativo-<?= (int) $usuario['id'] ?>">Situação</label>
           <select id="ativo-<?= (int) $usuario['id'] ?>" name="ativo">
             <option value="1" <?= (int) $usuario['ativo'] === 1 ? 'selected' : '' ?>>Ativo</option>
@@ -49,6 +53,8 @@
         <input type="text" id="email-novo" name="email" required maxlength="190" autocomplete="username"></div>
       <div class="field"><label for="senha-novo">Senha (mín. 10 caracteres)</label>
         <input type="password" id="senha-novo" name="senha" required minlength="10" autocomplete="new-password"></div>
+      <div class="field"><label for="senha-confirmacao-novo">Confirmar senha</label>
+        <input type="password" id="senha-confirmacao-novo" name="senha_confirmacao" required minlength="10" autocomplete="new-password"></div>
       <input type="hidden" name="ativo" value="1">
       <button type="submit" class="btn btn-gold btn-sm">Adicionar</button>
     </form>

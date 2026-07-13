@@ -8,7 +8,9 @@ $campanha = $config['campanha_nome'] ?? 'Concurso de Bolsas 2026';
 $chamada = $config['campanha_chamada'] ?? '';
 $descricao = $config['campanha_descricao'] ?? '';
 $inscricoesFim = $config['inscricoes_fim'] ?? '';
-$inscricoesTexto = $inscricoesFim !== '' ? 'Até ' . data_br($inscricoesFim) : 'Inscrição online';
+$statusInscricoes = $inscricoesAbertas
+    ? ($inscricoesFim !== '' ? 'Inscrições até ' . data_br($inscricoesFim) : 'Inscrições abertas')
+    : 'Inscrições encerradas';
 $old = $old ?? [];
 $formErrors = $formErrors ?? [];
 $temErros = $formErrors !== [];
@@ -61,11 +63,10 @@ $contatosUnidades = [
 
     <div class="container hero-grid">
       <div class="hero-copy">
-        <p class="hero-kicker"><?= $inscricoesAbertas ? 'Inscrições abertas' : 'Inscrições encerradas' ?></p>
+        <p class="hero-kicker"><?= e($statusInscricoes) ?></p>
         <h1 id="hero-titulo" class="hero-title"><?= e($campanha) ?></h1>
         <p class="hero-sub"><?= e($chamada !== '' ? $chamada : ($descricao !== '' ? $descricao : 'Garanta a participação do estudante na prova de bolsas.')) ?></p>
 
-        <p class="hero-prova"><strong>Provas às 9h:</strong> Anglo Pinda em 26 de setembro ou 17 de outubro; Fênix, Drummond e Anglo Cruzeiro em 17 de outubro. <?= e($inscricoesTexto) ?>.</p>
         <div class="hero-schedule" aria-label="Datas das provas por unidade">
           <?php foreach ($calendarioProvas as $item): ?>
           <p>
@@ -100,8 +101,8 @@ $contatosUnidades = [
           <?php endif; ?>
         </div>
 
-        <ol class="steps-indicator js-only" aria-hidden="true">
-          <li class="step-dot is-active" data-step-dot="1"><span class="step-dot-num">1</span><span class="step-dot-label">Estudante</span></li>
+        <ol class="steps-indicator js-only" aria-label="Etapas da inscrição">
+          <li class="step-dot is-active" data-step-dot="1" aria-current="step"><span class="step-dot-num">1</span><span class="step-dot-label">Estudante</span></li>
           <li class="step-dot" data-step-dot="2"><span class="step-dot-num">2</span><span class="step-dot-label">Responsável</span></li>
           <li class="step-dot" data-step-dot="3"><span class="step-dot-num">3</span><span class="step-dot-label">Confirmar</span></li>
         </ol>
@@ -168,7 +169,7 @@ $contatosUnidades = [
                         data-provas='<?= e($provasJson) ?>'
                         data-selected="<?= e($old['data_prova'] ?? '') ?>"
                         aria-describedby="hint-data_prova erro-data_prova">
-                  <option value="">Selecione a unidade primeiro</option>
+                  <option value="">Escolha a unidade</option>
                   <?php foreach ($provasPorEscola as $escolaId => $grupo): ?>
                     <?php foreach ($grupo['datas'] as $opcao): ?>
                     <option value="<?= e($opcao['data']) ?>" data-escola-id="<?= e((string) $escolaId) ?>" <?= (string) ($old['data_prova'] ?? '') === (string) $opcao['data'] && (string) ($old['escola_id'] ?? '') === (string) $escolaId ? 'selected' : '' ?>>

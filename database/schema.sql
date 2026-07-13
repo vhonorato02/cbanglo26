@@ -3,7 +3,7 @@
 -- MySQL 5.7+ / MariaDB 10.3+ — charset utf8mb4
 --
 -- Importe este arquivo inteiro pelo phpMyAdmin (aba "Importar")
--- dentro do banco criado no cPanel. Ele cria as tabelas e os
+-- dentro de um banco vazio criado no hPanel. Ele cria as tabelas e os
 -- dados iniciais da campanha.
 -- ============================================================
 
@@ -241,8 +241,7 @@ INSERT INTO inscricao_status (codigo, nome, cor, ordem, ativo) VALUES
 ('classificada', 'Classificada',  '#ca8a04', 8, 1);
 
 -- Configurações da campanha
--- ATENÇÃO: valores marcados [PENDENTE] devem ser revisados pela
--- instituição no painel administrativo antes da publicação.
+-- Os textos podem ser revisados no painel administrativo após a importação.
 INSERT INTO configuracoes (chave, valor) VALUES
 ('campanha_nome', 'Concurso de Bolsas 2026'),
 ('campanha_chamada', 'Escolha a unidade, selecione uma data disponível e conclua a inscrição em poucos passos.'),

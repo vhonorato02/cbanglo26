@@ -90,7 +90,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 }
 .admin-nav { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
 .admin-nav a {
-  display: block; padding: 11px 14px; border-radius: 10px;
+  display: block; padding: 11px 14px; border-radius: var(--radius);
   color: #cfcde8; font-weight: 600; text-decoration: none;
 }
 .admin-nav a:hover { background: rgb(255 255 255 / 0.08); color: var(--white); }
@@ -265,14 +265,16 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 }
 .badge-ok { background: var(--ok); }
 .badge-erro { background: var(--erro); }
-.alert { border-radius: 10px; padding: 13px 18px; font-weight: 600; margin-bottom: 18px; }
+.alert { border-radius: var(--radius); padding: 13px 18px; font-weight: 600; margin-bottom: 18px; }
 .alert-erro { background: #fdecee; color: #9f1c2a; border: 1px solid #f5c2c9; }
 .alert-ok { background: #e8f7ee; color: #14602f; border: 1px solid #b8e6c9; }
+.alert-aviso { background: #fff7d6; color: #654b00; border: 1px solid #f0d66a; }
+.alert-aviso a { color: inherit; font-weight: 800; }
 .empty-note { color: var(--text-soft); }
 
 /* ---------- Observações / histórico ---------- */
 .obs-lista, .hist-lista { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 12px; }
-.obs-lista li, .hist-lista li { background: #fafafd; border: 1px solid #ecebf4; border-radius: 10px; padding: 12px 14px; }
+.obs-lista li, .hist-lista li { background: #fafafd; border: 1px solid #ecebf4; border-radius: var(--radius); padding: 12px 14px; }
 .obs-lista p { margin: 0 0 6px; }
 .obs-lista small, .hist-lista small { display: block; color: var(--text-soft); margin-top: 4px; }
 .hist-antes { color: var(--erro); text-decoration: line-through; }
@@ -282,7 +284,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .paginacao { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; }
 .pag-item {
   display: grid; place-items: center; min-width: 40px; height: 40px; padding: 0 8px;
-  border-radius: 10px; border: 1px solid var(--borda); background: var(--white);
+  border-radius: var(--radius); border: 1px solid var(--borda); background: var(--white);
   text-decoration: none; font-weight: 700; color: var(--ink-700);
 }
 .pag-item.is-current { background: var(--ink-800); color: var(--white); border-color: var(--ink-800); }

@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 use App\Core\Env;
 
+$environment = Env::get('APP_ENV', 'production');
+$defaultDbDriver = $environment === 'development' ? 'sqlite' : 'mysql';
+
 return [
-    'env'      => Env::get('APP_ENV', 'production'),
+    'env'      => $environment,
     'debug'    => Env::bool('APP_DEBUG', false),
     'url'      => rtrim(Env::get('APP_URL', ''), '/'),
     'timezone' => Env::get('APP_TIMEZONE', 'America/Sao_Paulo'),
@@ -13,7 +16,7 @@ return [
     'setup_token' => Env::get('APP_SETUP_TOKEN', ''),
 
     'db' => [
-        'driver'   => Env::get('DB_DRIVER', 'sqlite'),
+        'driver'   => Env::get('DB_DRIVER', $defaultDbDriver),
         'host'     => Env::get('DB_HOST', ''),
         'port'     => Env::get('DB_PORT', '3306'),
         'database' => Env::get('DB_DATABASE', ''),
