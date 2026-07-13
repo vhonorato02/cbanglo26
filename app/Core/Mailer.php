@@ -40,6 +40,8 @@ final class Mailer
             return false;
         }
         try {
+            $this->validarEndereco((string) $to, 'destinatário');
+            $this->validarEndereco((string) $this->mail['from_address'], 'remetente');
             $this->smtpSend($to, $subject, $html, $textAlt);
             return true;
         } catch (\Throwable $e) {
@@ -73,12 +75,13 @@ final class Mailer
             }
             return $data;
         };
-        $cmd = function (string $command, array $expect) use ($fp, $read): string {
+        $cmd = function (string $command, array $expect, $descricao = '') use ($fp, $read): string {
             fwrite($fp, $command . "\r\n");
             $response = $read();
             $code = (int) substr($response, 0, 3);
             if (!in_array($code, $expect, true)) {
-                throw new \RuntimeException("SMTP '{$command}' retornou: " . trim(substr($response, 0, 120)));
+                $operacao = $descricao !== '' ? $descricao : strtok($command, ' ');
+                throw new \RuntimeException("SMTP {$operacao} retornou: " . trim(substr($response, 0, 120)));
             }
             return $response;
         };
@@ -103,12 +106,13 @@ final class Mailer
 
         if (($this->mail['smtp_user'] ?? '') !== '') {
             $cmd('AUTH LOGIN', [334]);
-            $cmd(base64_encode($this->mail['smtp_user']), [334]);
-            $cmd(base64_encode($this->mail['smtp_pass']), [235]);
+            $cmd(base64_encode($this->mail['smtp_user']), [334], 'AUTH usuário');
+            $cmd(base64_encode($this->mail['smtp_pass']), [235], 'AUTH senha');
         }
 
         $from = $this->mail['from_address'];
-        $fromName = $this->mail['from_name'];
+        $fromName = $this->limparCabecalho((string) $this->mail['from_name']);
+        $subject = $this->limparCabecalho((string) $subject);
         $cmd('MAIL FROM:<' . $from . '>', [250]);
         $cmd('RCPT TO:<' . $to . '>', [250, 251]);
         $cmd('DATA', [354]);
@@ -150,5 +154,15 @@ final class Mailer
         }
         fwrite($fp, "QUIT\r\n");
         fclose($fp);
+    }
+
+    private function validarEndereco($endereco, $tipo) {
+        if (filter_var($endereco, FILTER_VALIDATE_EMAIL) === false || preg_match('/[\r\n]/', $endereco)) {
+            throw new \InvalidArgumentException("Endereço de {$tipo} inválido.");
+        }
+    }
+
+    private function limparCabecalho($valor) {
+        return trim((string) preg_replace('/[\r\n]+/', ' ', $valor));
     }
 }

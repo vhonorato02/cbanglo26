@@ -116,3 +116,13 @@ T::test('e-mail: falha de SMTP é capturada e registrada sem exceção', functio
     $ok = $mailer->send('x@y.com', 'Teste', '<p>oi</p>');
     T::assert($ok === false, 'falha de conexão deveria retornar false');
 });
+
+T::test('e-mail: destinatário inválido é recusado antes do transporte', function () {
+    $mailer = new \App\Core\Mailer([
+        'from_address' => 'de@teste.com', 'from_name' => 'Teste',
+        'smtp_host' => '127.0.0.1', 'smtp_port' => 1,
+        'smtp_user' => '', 'smtp_pass' => '', 'encryption' => 'none',
+    ]);
+    $ok = $mailer->send("destino@teste.com\r\nBcc: invasor@teste.com", 'Teste', '<p>oi</p>');
+    T::assert($ok === false, 'injeção de cabeçalho deveria ser recusada');
+});

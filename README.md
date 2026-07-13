@@ -37,6 +37,12 @@ Acesso inicial do painel:
 
 O formulário valida a data conforme a unidade escolhida.
 
+## E-mail
+
+O envio de confirmações usa SMTP com SSL implícito na porta 465. O arquivo `.env.example` já contém o host, o remetente e as portas corretas; somente as senhas devem ser preenchidas no `.env`, que não é versionado.
+
+O POP3 com SSL na porta 995 serve apenas para configurar a caixa em um cliente de e-mail. A aplicação envia confirmações, mas não lê nem remove mensagens da caixa de entrada.
+
 ## Deploy
 
 1. Rode o build dos assets:
@@ -48,7 +54,7 @@ npm run build
 
 2. Importe `database/schema.sql` no banco MySQL/MariaDB.
 
-3. Configure `.env` a partir de `.env.example`, com `DB_DRIVER=mysql` e as credenciais reais do banco.
+3. Configure `.env` a partir de `.env.example`, com `DB_DRIVER=mysql` e as credenciais reais do banco e do e-mail.
 
 4. Envie para a hospedagem:
 
