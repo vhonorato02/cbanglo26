@@ -37,11 +37,11 @@ function test_reset_db(): void
     $pdo->exec((string) file_get_contents(BASE_PATH . '/tests/schema-sqlite.sql'));
 
     $agora = date('Y-m-d H:i:s');
-    $pdo->exec("INSERT INTO escolas (nome, cidade, logo, ordem, ativo, criado_em, atualizado_em) VALUES
-        ('Anglo Pinda', 'Pindamonhangaba', 'assets/img/logos/anglo-pinda.png', 1, 1, '{$agora}', '{$agora}'),
-        ('Colégio Fênix', '', 'assets/img/logos/colegio-fenix.png', 2, 1, '{$agora}', '{$agora}'),
-        ('Colégio Drummond', '', 'assets/img/logos/colegio-drummond.png', 3, 1, '{$agora}', '{$agora}'),
-        ('Anglo Cruzeiro', 'Cruzeiro', 'assets/img/logos/anglo-cruzeiro.png', 4, 1, '{$agora}', '{$agora}')");
+    $pdo->exec("INSERT INTO escolas (nome, cidade, logo, whatsapp, telefone, ordem, ativo, criado_em, atualizado_em) VALUES
+        ('Anglo Pinda', 'Pindamonhangaba', 'assets/img/logos/anglo-pinda.png', '5512991936523', '1236443266', 1, 1, '{$agora}', '{$agora}'),
+        ('Colégio Fênix', 'Guaratinguetá', 'assets/img/logos/colegio-fenix.png', '5512991169782', '1231253477', 2, 1, '{$agora}', '{$agora}'),
+        ('Colégio Drummond', 'Lorena', 'assets/img/logos/colegio-drummond.png', '5512991856338', '', 3, 1, '{$agora}', '{$agora}'),
+        ('Anglo Cruzeiro', 'Cruzeiro', 'assets/img/logos/anglo-cruzeiro.png', '5512991052675', '1231445144', 4, 1, '{$agora}', '{$agora}')");
     $pdo->exec("INSERT INTO series (nome, descricao, ordem, ativo, criado_em, atualizado_em) VALUES
         ('6º ano — Ensino Fundamental', 'Anos Finais', 1, 1, '{$agora}', '{$agora}'),
         ('1ª série — Ensino Médio', '', 2, 1, '{$agora}', '{$agora}')");
@@ -69,6 +69,7 @@ function test_inscricao_valida(array $override = []): array
         'aluno_nascimento' => '10/03/2014',
         'serie_id' => '1',
         'escola_id' => '1',
+        'data_prova' => '2026-09-26',
         'escola_atual' => 'EMEF Central',
         'responsavel_nome' => 'Ana Paula de Souza',
         'parentesco' => 'Mãe',

@@ -11,6 +11,7 @@ T::test('inscrição válida passa na validação', function () {
     T::assertEquals('2014-03-10', $data['aluno_nascimento'], 'data normalizada');
     T::assertEquals('12988776655', $data['whatsapp'], 'whatsapp somente dígitos');
     T::assertEquals('ana.souza@example.com', $data['email']);
+    T::assertEquals('2026-09-26', $data['data_prova']);
 });
 
 T::test('todos os campos vazios são rejeitados com mensagens', function () {
@@ -18,10 +19,19 @@ T::test('todos os campos vazios são rejeitados com mensagens', function () {
     T::assert(!$v->validate([]), 'não deveria validar vazio');
     $erros = $v->errors();
     foreach (['aluno_nome', 'aluno_nascimento', 'serie_id', 'escola_id', 'escola_atual',
-              'responsavel_nome', 'parentesco', 'whatsapp', 'email', 'cidade',
+              'data_prova', 'responsavel_nome', 'parentesco', 'whatsapp', 'email', 'cidade',
               'consent_privacidade', 'consent_contato'] as $campo) {
         T::assert(isset($erros[$campo]), "faltou erro para {$campo}");
     }
+});
+
+T::test('data da prova precisa estar disponível para a unidade', function () {
+    $v = new InscricaoValidator();
+    T::assert($v->validate(test_inscricao_valida(['escola_id' => '1', 'data_prova' => '2026-10-17'])), 'Anglo Pinda aceita 17/10');
+
+    $v2 = new InscricaoValidator();
+    T::assert(!$v2->validate(test_inscricao_valida(['escola_id' => '2', 'data_prova' => '2026-09-26'])), 'Fênix não aceita 26/09');
+    T::assert(isset($v2->errors()['data_prova']));
 });
 
 T::test('e-mail inválido é rejeitado', function () {

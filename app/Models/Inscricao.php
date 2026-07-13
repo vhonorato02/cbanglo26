@@ -35,12 +35,12 @@ final class Inscricao
 
             $agora = Database::now();
             $sql = 'INSERT INTO inscricoes
-                (protocolo, aluno_slug, aluno_nome, aluno_nascimento, serie_id, escola_id,
+                (protocolo, aluno_slug, aluno_nome, aluno_nascimento, serie_id, escola_id, data_prova,
                  escola_atual, responsavel_nome, parentesco, whatsapp, email, cidade,
                  consent_privacidade, consent_contato, consent_versao, consent_data,
                  status_id, ip_hash, user_agent, criado_em, atualizado_em)
                 VALUES
-                (:protocolo, :slug, :aluno_nome, :aluno_nascimento, :serie_id, :escola_id,
+                (:protocolo, :slug, :aluno_nome, :aluno_nascimento, :serie_id, :escola_id, :data_prova,
                  :escola_atual, :responsavel_nome, :parentesco, :whatsapp, :email, :cidade,
                  :consent_privacidade, :consent_contato, :consent_versao, :consent_data,
                  :status_id, :ip_hash, :user_agent, :criado_em, :atualizado_em)';
@@ -68,6 +68,7 @@ final class Inscricao
                 ':aluno_nascimento' => $data['aluno_nascimento'],
                 ':serie_id' => (int) $data['serie_id'],
                 ':escola_id' => (int) $data['escola_id'],
+                ':data_prova' => $data['data_prova'],
                 ':escola_atual' => $data['escola_atual'],
                 ':responsavel_nome' => $data['responsavel_nome'],
                 ':parentesco' => $data['parentesco'],
@@ -204,6 +205,11 @@ final class Inscricao
                 $params[":{$key}"] = $val;
             }
         }
+        $prova = (string) ($filtros['data_prova'] ?? '');
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $prova)) {
+            $conds[] = 'i.data_prova = :data_prova';
+            $params[':data_prova'] = $prova;
+        }
         $de = (string) ($filtros['de'] ?? '');
         if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $de)) {
             $conds[] = 'i.criado_em >= :de';
@@ -227,6 +233,8 @@ final class Inscricao
                 return 'i.aluno_nome ASC';
             case 'nome_desc':
                 return 'i.aluno_nome DESC';
+            case 'prova':
+                return 'i.data_prova ASC, i.criado_em DESC';
             default:
                 return 'i.criado_em DESC';
         }
@@ -245,7 +253,7 @@ final class Inscricao
             throw new \RuntimeException('Inscrição não encontrada.');
         }
         $editaveis = [
-            'aluno_nome', 'aluno_nascimento', 'serie_id', 'escola_id', 'escola_atual',
+            'aluno_nome', 'aluno_nascimento', 'serie_id', 'escola_id', 'data_prova', 'escola_atual',
             'responsavel_nome', 'parentesco', 'whatsapp', 'email', 'cidade', 'status_id',
         ];
         $mudancas = [];
@@ -334,6 +342,16 @@ final class Inscricao
         $sql = "SELECT t.nome, COUNT(i.id) AS total
                 FROM {$tabela} t LEFT JOIN inscricoes i ON i.{$fk} = t.id
                 WHERE t.ativo = 1 GROUP BY t.id, t.nome ORDER BY total DESC";
+        return Database::pdo()->query($sql)->fetchAll();
+    }
+
+    /** @return array<int, array<string, mixed>> Totais por data da prova. */
+    public static function totaisPorProva(): array
+    {
+        $sql = "SELECT data_prova AS nome, COUNT(id) AS total
+                FROM inscricoes
+                GROUP BY data_prova
+                ORDER BY data_prova ASC";
         return Database::pdo()->query($sql)->fetchAll();
     }
 }

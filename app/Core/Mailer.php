@@ -57,7 +57,7 @@ final class Mailer
         $context = stream_context_create([
             'ssl' => ['SNI_enabled' => true, 'verify_peer' => true, 'verify_peer_name' => true],
         ]);
-        $fp = stream_socket_client($remote, $errno, $errstr, 20, STREAM_CLIENT_CONNECT, $context);
+        $fp = @stream_socket_client($remote, $errno, $errstr, 20, STREAM_CLIENT_CONNECT, $context);
         if ($fp === false) {
             throw new \RuntimeException("Conexão SMTP falhou: {$errstr} ({$errno})");
         }

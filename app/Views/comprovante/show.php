@@ -4,8 +4,7 @@
  * $inscricao, $autorizado (bool — mostra dados completos), $config, $csrf
  */
 $campanha = $config['campanha_nome'] ?? 'Concurso de Bolsas';
-$dataProva = $config['data_prova'] ?? '';
-$horaProva = $config['hora_prova'] ?? '';
+$dataProvaTexto = !empty($inscricao['data_prova']) ? \App\Core\Provas::rotuloSelecionada($inscricao['data_prova']) : '';
 $primeiroNome = explode(' ', trim($inscricao['aluno_nome']))[0] ?? '';
 ?>
 <header class="page-header page-header-print">
@@ -41,8 +40,8 @@ $primeiroNome = explode(' ', trim($inscricao['aluno_nome']))[0] ?? '';
       <div><dt>Cidade</dt><dd><?= e($inscricao['cidade']) ?></dd></div>
       <?php endif; ?>
       <div><dt>Inscrição realizada em</dt><dd><?= e(data_br($inscricao['criado_em'], true)) ?></dd></div>
-      <?php if ($dataProva !== ''): ?>
-      <div><dt>Data da prova</dt><dd><?= e(data_br($dataProva)) ?><?= $horaProva !== '' ? ' às ' . e(substr($horaProva, 0, 5)) . 'h' : '' ?></dd></div>
+      <?php if ($dataProvaTexto !== ''): ?>
+      <div><dt>Data da prova</dt><dd><?= e($dataProvaTexto) ?></dd></div>
       <?php endif; ?>
     </dl>
 

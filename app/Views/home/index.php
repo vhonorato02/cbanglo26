@@ -1,28 +1,23 @@
 <?php
 /**
  * Landing page do Concurso de Bolsas.
- * Variáveis: $config, $escolas, $series, $faqs, $inscricoesAbertas, $csrf, $formTs, $old, $formErrors
+ * Variáveis: $config, $escolas, $series, $faqs, $provasPorEscola,
+ * $calendarioProvas, $inscricoesAbertas, $csrf, $formTs, $old, $formErrors
  */
 $campanha = $config['campanha_nome'] ?? 'Concurso de Bolsas 2026';
 $chamada = $config['campanha_chamada'] ?? '';
 $descricao = $config['campanha_descricao'] ?? '';
-$dataProva = $config['data_prova'] ?? '';
-$horaProva = $config['hora_prova'] ?? '';
-$mesesExt = [1=>'janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
-$dataProvaExt = '';
-if ($dataProva !== '' && ($ts = strtotime($dataProva)) !== false) {
-    $dataProvaExt = date('j', $ts) . ' de ' . $mesesExt[(int) date('n', $ts)];
-}
-$horaProvaCurta = hora_br($horaProva);
-$provaTexto = $dataProvaExt !== '' ? $dataProvaExt : 'Data a confirmar';
-if ($horaProvaCurta !== '') {
-    $provaTexto .= ', às ' . $horaProvaCurta;
-}
 $inscricoesFim = $config['inscricoes_fim'] ?? '';
 $inscricoesTexto = $inscricoesFim !== '' ? 'Até ' . data_br($inscricoesFim) : 'Inscrição online';
 $old = $old ?? [];
 $formErrors = $formErrors ?? [];
 $temErros = $formErrors !== [];
+$provasPorEscola = $provasPorEscola ?? [];
+$calendarioProvas = $calendarioProvas ?? [];
+$provasJson = json_encode($provasPorEscola, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+if ($provasJson === false) {
+    $provasJson = '{}';
+}
 $contatosUnidades = [
     ['nome' => 'Anglo Pinda', 'whatsapp' => '5512991936523'],
     ['nome' => 'Colégio Fênix', 'whatsapp' => '5512991169782'],
@@ -70,7 +65,15 @@ $contatosUnidades = [
         <h1 id="hero-titulo" class="hero-title"><?= e($campanha) ?></h1>
         <p class="hero-sub"><?= e($chamada !== '' ? $chamada : ($descricao !== '' ? $descricao : 'Garanta a participação do estudante na prova de bolsas.')) ?></p>
 
-        <p class="hero-prova"><strong>Prova:</strong> <?= e($provaTexto) ?> · <?= e($inscricoesTexto) ?></p>
+        <p class="hero-prova"><strong>Prova:</strong> cada escola tem sua data. O aluno escolhe conforme a disponibilidade da unidade. <?= e($inscricoesTexto) ?>.</p>
+        <div class="hero-schedule" aria-label="Datas das provas por unidade">
+          <?php foreach ($calendarioProvas as $item): ?>
+          <p>
+            <span><?= e($item['unidade']) ?></span>
+            <strong><?= e($item['datas']) ?> · <?= e($item['hora']) ?></strong>
+          </p>
+          <?php endforeach; ?>
+        </div>
       </div>
 
       <aside class="signup-panel form-card" id="inscricao" aria-labelledby="inscricao-titulo">
@@ -158,6 +161,25 @@ $contatosUnidades = [
               <p class="field-error" id="erro-escola_id"><?= e($formErrors['escola_id'] ?? '') ?></p>
             </div>
 
+            <div class="field <?= isset($formErrors['data_prova']) ? 'has-error' : '' ?>">
+              <label for="data_prova">Data da prova</label>
+              <select id="data_prova" name="data_prova" required
+                      data-provas='<?= e($provasJson) ?>'
+                      data-selected="<?= e($old['data_prova'] ?? '') ?>"
+                      aria-describedby="hint-data_prova erro-data_prova">
+                <option value="">Selecione a unidade primeiro</option>
+                <?php foreach ($provasPorEscola as $escolaId => $grupo): ?>
+                  <?php foreach ($grupo['datas'] as $opcao): ?>
+                  <option value="<?= e($opcao['data']) ?>" data-escola-id="<?= e((string) $escolaId) ?>" <?= (string) ($old['data_prova'] ?? '') === (string) $opcao['data'] && (string) ($old['escola_id'] ?? '') === (string) $escolaId ? 'selected' : '' ?>>
+                    <?= e($grupo['escola']) ?> · <?= e($opcao['label']) ?>
+                  </option>
+                  <?php endforeach; ?>
+                <?php endforeach; ?>
+              </select>
+              <p class="field-hint" id="hint-data_prova">As datas aparecem de acordo com a unidade escolhida.</p>
+              <p class="field-error" id="erro-data_prova"><?= e($formErrors['data_prova'] ?? '') ?></p>
+            </div>
+
             <div class="field <?= isset($formErrors['escola_atual']) ? 'has-error' : '' ?>">
               <label for="escola_atual">Escola onde estuda atualmente</label>
               <input type="text" id="escola_atual" name="escola_atual"
@@ -235,6 +257,7 @@ $contatosUnidades = [
                 <div><dt>Nascimento</dt><dd data-resumo="aluno_nascimento">—</dd></div>
                 <div><dt>Série</dt><dd data-resumo="serie_id">—</dd></div>
                 <div><dt>Unidade</dt><dd data-resumo="escola_id">—</dd></div>
+                <div><dt>Prova</dt><dd data-resumo="data_prova">—</dd></div>
                 <div><dt>Escola atual</dt><dd data-resumo="escola_atual">—</dd></div>
                 <div><dt>Responsável</dt><dd data-resumo="responsavel_nome">—</dd></div>
                 <div><dt>Parentesco</dt><dd data-resumo="parentesco">—</dd></div>
@@ -289,6 +312,27 @@ $contatosUnidades = [
         </div>
         <?php endif; ?>
       </aside>
+    </div>
+  </section>
+
+  <section class="section section-compact section-schedule" aria-labelledby="datas-prova-titulo">
+    <div class="container">
+      <div class="section-heading section-heading-row">
+        <div>
+          <p class="section-kicker">Datas da prova</p>
+          <h2 class="section-title" id="datas-prova-titulo">Escolha conforme a unidade</h2>
+        </div>
+        <p class="section-lead">O formulário só libera as datas disponíveis para a escola selecionada.</p>
+      </div>
+      <div class="schedule-list">
+        <?php foreach ($calendarioProvas as $item): ?>
+        <article class="schedule-card">
+          <p class="schedule-unit"><?= e($item['unidade']) ?></p>
+          <p class="schedule-date"><?= e($item['datas']) ?></p>
+          <p class="schedule-hour"><?= e($item['hora']) ?></p>
+        </article>
+        <?php endforeach; ?>
+      </div>
     </div>
   </section>
 

@@ -8,6 +8,7 @@ use App\Core\Config;
 use App\Core\Csrf;
 use App\Core\Logger;
 use App\Core\Mailer;
+use App\Core\Provas;
 use App\Core\Session;
 use App\Models\DuplicidadeException;
 use App\Models\EmailLog;
@@ -72,7 +73,7 @@ final class InscricaoController
         // 7. Persistência (transação; protocolo único gerado no servidor)
         try {
             $resultado = Inscricao::criar($data);
-        } catch (DuplicidadeException) {
+        } catch (DuplicidadeException $e) {
             $this->falha(409, [
                 'aluno_nome' => 'Já existe uma inscrição para este estudante. Se precisar corrigir os dados, fale com a escola escolhida.',
             ]);
@@ -99,7 +100,7 @@ final class InscricaoController
     }
 
     /** @param array<string, string> $errors */
-    private function falha(int $status, array $errors): never
+    private function falha(int $status, array $errors): void
     {
         if (wants_json()) {
             json_response(['ok' => false, 'errors' => $errors], $status);
@@ -122,8 +123,8 @@ final class InscricaoController
         $serie = Serie::find((int) $data['serie_id']);
         $escola = Escola::find((int) $data['escola_id']);
         $campanha = Config::get('campanha_nome', 'Concurso de Bolsas');
-        $dataProva = Config::get('data_prova');
-        $horaProva = Config::get('hora_prova');
+        $dataProva = (string) ($data['data_prova'] ?? '');
+        $horaProva = '09:00';
 
         $assunto = "{$campanha} — Inscrição recebida ({$protocolo})";
         $html = \App\Core\View::render('emails/confirmacao', [
@@ -134,6 +135,7 @@ final class InscricaoController
             'campanha' => $campanha,
             'dataProva' => $dataProva,
             'horaProva' => $horaProva,
+            'provaTexto' => $dataProva !== '' ? Provas::rotulo($dataProva, $horaProva) : '',
             'comprovanteUrl' => url('comprovante/' . $protocolo),
         ]);
 

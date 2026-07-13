@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Validation;
 
+use App\Core\Provas;
 use App\Core\Str;
 use App\Models\Escola;
 use App\Models\Serie;
@@ -42,6 +43,7 @@ final class InscricaoValidator
         $this->validarNascimento($input);
         $this->validarSerie($input);
         $this->validarEscola($input);
+        $this->validarDataProva($input);
         $this->validarTexto('escola_atual', $input, 'Informe a escola atual do estudante.', 2, 150);
         $this->validarNome('responsavel_nome', $input, 'Informe o nome completo do responsável.');
         $this->validarTexto('parentesco', $input, 'Informe o grau de parentesco.', 2, 60);
@@ -139,6 +141,29 @@ final class InscricaoValidator
             return;
         }
         $this->data['escola_id'] = $id;
+    }
+
+    private function validarDataProva($input) {
+        $valor = Str::clean((string) ($input['data_prova'] ?? ''));
+        if ($valor === '') {
+            $this->errors['data_prova'] = 'Escolha a data da prova.';
+            return;
+        }
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $valor) || strtotime($valor) === false) {
+            $this->errors['data_prova'] = 'Data de prova inválida.';
+            return;
+        }
+        if (isset($this->errors['escola_id'])) {
+            return;
+        }
+        if ($this->checkDb) {
+            $escola = Escola::find((int) ($this->data['escola_id'] ?? 0));
+            if ($escola === null || !Provas::dataPermitida($valor, $escola)) {
+                $this->errors['data_prova'] = 'Escolha uma data disponível para a unidade.';
+                return;
+            }
+        }
+        $this->data['data_prova'] = $valor;
     }
 
     private function validarTexto($campo, $input, $msgVazio, $min, $max) {

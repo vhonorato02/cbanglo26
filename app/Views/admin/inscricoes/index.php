@@ -1,12 +1,21 @@
 <?php
 /** Lista de inscrições: $resultado, $filtros, $escolas, $series, $statusLista, $csrf, $flash */
 $qs = static function (array $extra = []) use ($filtros): string {
-    $params = array_filter(array_merge($filtros, $extra), fn ($v) => $v !== '' && $v !== 0);
+    $params = array_filter(array_merge($filtros, $extra), static function ($v) {
+        return $v !== '' && $v !== 0;
+    });
     return http_build_query($params);
 };
+$provasFiltro = [
+    '2026-09-26' => '26 de setembro',
+    '2026-10-17' => '17 de outubro',
+];
 ?>
 <div class="admin-page-head">
-  <h1>Inscrições <span class="count-pill"><?= (int) $resultado['total'] ?></span></h1>
+  <div>
+    <h1>Inscrições <span class="count-pill"><?= (int) $resultado['total'] ?></span></h1>
+    <p class="page-meta">Filtre por unidade, série, status ou data da prova.</p>
+  </div>
   <a class="btn btn-gold btn-sm" href="<?= e(url('admin/inscricoes/exportar') . '?' . $qs()) ?>">Exportar CSV</a>
 </div>
 
@@ -47,6 +56,15 @@ $qs = static function (array $extra = []) use ($filtros): string {
         <?php endforeach; ?>
       </select>
     </div>
+    <div class="field">
+      <label for="data_prova">Prova</label>
+      <select id="data_prova" name="data_prova">
+        <option value="">Todas</option>
+        <?php foreach ($provasFiltro as $valor => $rotulo): ?>
+        <option value="<?= e($valor) ?>" <?= $filtros['data_prova'] === $valor ? 'selected' : '' ?>><?= e($rotulo) ?></option>
+        <?php endforeach; ?>
+      </select>
+    </div>
   </div>
   <div class="filtros-linha">
     <div class="field">
@@ -64,6 +82,7 @@ $qs = static function (array $extra = []) use ($filtros): string {
         <option value="antigas" <?= $filtros['ordenar'] === 'antigas' ? 'selected' : '' ?>>Mais antigas</option>
         <option value="nome" <?= $filtros['ordenar'] === 'nome' ? 'selected' : '' ?>>Nome (A–Z)</option>
         <option value="nome_desc" <?= $filtros['ordenar'] === 'nome_desc' ? 'selected' : '' ?>>Nome (Z–A)</option>
+        <option value="prova" <?= $filtros['ordenar'] === 'prova' ? 'selected' : '' ?>>Data da prova</option>
       </select>
     </div>
     <div class="filtros-acoes">
@@ -79,7 +98,7 @@ $qs = static function (array $extra = []) use ($filtros): string {
 <div class="tabela-wrap">
   <table class="tabela">
     <thead>
-      <tr><th>Protocolo</th><th>Estudante</th><th>Série</th><th>Escola</th><th>Responsável</th><th>Status</th><th>Data</th><th><span class="visually-hidden">Ações</span></th></tr>
+      <tr><th>Protocolo</th><th>Estudante</th><th>Série</th><th>Escola</th><th>Prova</th><th>Responsável</th><th>Status</th><th>Data</th><th><span class="visually-hidden">Ações</span></th></tr>
     </thead>
     <tbody>
       <?php foreach ($resultado['rows'] as $r): ?>
@@ -88,6 +107,7 @@ $qs = static function (array $extra = []) use ($filtros): string {
         <td data-th="Estudante"><?= e($r['aluno_nome']) ?></td>
         <td data-th="Série"><?= e($r['serie_nome']) ?></td>
         <td data-th="Escola"><?= e($r['escola_nome']) ?></td>
+        <td data-th="Prova"><?= e(\App\Core\Provas::rotuloSelecionada($r['data_prova'])) ?></td>
         <td data-th="Responsável"><?= e($r['responsavel_nome']) ?><br><small><?= e($r['whatsapp']) ?></small></td>
         <td data-th="Status"><span class="badge" style="--badge-cor: <?= e($r['status_cor']) ?>"><?= e($r['status_nome']) ?></span></td>
         <td data-th="Data"><?= e(data_br($r['criado_em'], true)) ?></td>

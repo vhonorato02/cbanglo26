@@ -36,14 +36,14 @@ final class UsuariosController
         $senha = (string) ($_POST['senha'] ?? '');
         $ativo = ($_POST['ativo'] ?? '') === '1' ? 1 : 0;
 
-        if (mb_strlen($nome) < 3 || filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
-            Session::set('admin_flash', ['tipo' => 'erro', 'msg' => 'Informe nome e e-mail válidos.']);
+        if (mb_strlen($nome) < 3 || !$this->loginValido($email)) {
+            Session::set('admin_flash', ['tipo' => 'erro', 'msg' => 'Informe nome e usuário de acesso válidos.']);
             redirect('admin/usuarios');
         }
 
         $existente = AdminUser::findByEmail($email);
         if ($existente !== null && (int) $existente['id'] !== $id) {
-            Session::set('admin_flash', ['tipo' => 'erro', 'msg' => 'Já existe um usuário com este e-mail.']);
+            Session::set('admin_flash', ['tipo' => 'erro', 'msg' => 'Já existe um administrador com este usuário de acesso.']);
             redirect('admin/usuarios');
         }
 
@@ -77,5 +77,12 @@ final class UsuariosController
         }
         Session::set('admin_flash', ['tipo' => 'ok', 'msg' => 'Usuário salvo.']);
         redirect('admin/usuarios');
+    }
+
+    private function loginValido($login): bool
+    {
+        return mb_strlen($login) >= 3
+            && mb_strlen($login) <= 190
+            && (bool) preg_match('/^[a-z0-9._@-]+$/i', $login);
     }
 }

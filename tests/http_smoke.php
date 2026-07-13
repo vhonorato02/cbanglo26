@@ -13,6 +13,12 @@ $cookieJar = [];
 $falhas = 0;
 $passou = 0;
 
+if (!function_exists('str_contains')) {
+    function str_contains($haystack, $needle) {
+        return $needle === '' || strpos($haystack, $needle) !== false;
+    }
+}
+
 function req(string $method, string $url, array $data = [], array $headers = []): array
 {
     global $cookieJar;
@@ -79,6 +85,8 @@ check('landing contém o formulário', str_contains($r['body'], 'form-inscricao'
 check('landing contém as 4 escolas', str_contains($r['body'], 'Anglo Pinda')
     && str_contains($r['body'], 'Fênix') && str_contains($r['body'], 'Drummond')
     && str_contains($r['body'], 'Anglo Cruzeiro'));
+check('landing contém calendário por unidade', str_contains($r['body'], '26 de setembro')
+    && str_contains($r['body'], '17 de outubro'));
 check('cabeçalho CSP presente', isset($r['headers']['content-security-policy']));
 check('cabeçalho nosniff presente', ($r['headers']['x-content-type-options'] ?? '') === 'nosniff');
 
@@ -93,6 +101,7 @@ $inscricao = [
     'aluno_nascimento' => '15/04/2014',
     'serie_id' => '1',
     'escola_id' => '2',
+    'data_prova' => '2026-10-17',
     'escola_atual' => 'EMEF do Centro',
     'responsavel_nome' => 'Carla Alves Moreira',
     'parentesco' => 'Mãe',
@@ -147,6 +156,7 @@ check('duplicidade retorna 409', $r['status'] === 409, "status {$r['status']}");
 $r = req('GET', "{$base}/comprovante/{$protocolo}");
 check('comprovante responde 200 com o protocolo', $r['status'] === 200 && str_contains($r['body'], $protocolo));
 check('comprovante da sessão mostra dados completos', str_contains($r['body'], 'Henrique Alves Moreira'));
+check('comprovante mostra a data escolhida', str_contains($r['body'], '17 de outubro'));
 
 $r = req('GET', "{$base}/comprovante/CB26-ZZZZ-ZZZZ");
 check('protocolo inexistente responde 404', $r['status'] === 404, "status {$r['status']}");
@@ -174,10 +184,10 @@ $r = req('GET', "{$base}/admin/login");
 check('tela de login responde 200', $r['status'] === 200);
 $csrfLogin = extrairCsrf($r['body']);
 
-$r = req('POST', "{$base}/admin/login", ['_csrf' => $csrfLogin, 'email' => 'admin@local.test', 'senha' => 'senha-errada']);
+$r = req('POST', "{$base}/admin/login", ['_csrf' => $csrfLogin, 'email' => 'admin', 'senha' => 'senha-errada']);
 check('login inválido volta para o login', str_contains($r['headers']['location'] ?? '', 'admin/login'));
 
-$r = req('POST', "{$base}/admin/login", ['_csrf' => $csrfLogin, 'email' => 'admin@local.test', 'senha' => 'admin-teste-12345']);
+$r = req('POST', "{$base}/admin/login", ['_csrf' => $csrfLogin, 'email' => 'admin', 'senha' => 'cbanglo26##']);
 check('login válido redireciona ao painel', ($r['headers']['location'] ?? '') !== ''
     && !str_contains($r['headers']['location'] ?? '', 'login'), 'location: ' . ($r['headers']['location'] ?? 'nenhum'));
 

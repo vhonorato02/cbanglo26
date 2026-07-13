@@ -41,7 +41,7 @@ final class AuthController
             redirect('admin/login');
         }
         if ($resultado === 'invalid') {
-            Session::set('login_erro', 'E-mail ou senha incorretos.');
+            Session::set('login_erro', 'Usuário ou senha incorretos.');
             redirect('admin/login');
         }
         AuditLog::registrar(Auth::id(), 'auth.login', 'Login realizado');

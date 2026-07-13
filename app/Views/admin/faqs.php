@@ -2,7 +2,10 @@
 /** Gerenciar FAQs: $faqs, $csrf, $flash */
 ?>
 <div class="admin-page-head">
-  <h1>Perguntas frequentes</h1>
+  <div>
+    <h1>Perguntas frequentes</h1>
+    <p class="page-meta">Respostas curtas para reduzir dúvidas antes do envio da inscrição.</p>
+  </div>
 </div>
 
 <?php if (!empty($flash)): ?>

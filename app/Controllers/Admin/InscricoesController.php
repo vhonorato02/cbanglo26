@@ -6,6 +6,7 @@ namespace App\Controllers\Admin;
 
 use App\Core\Auth;
 use App\Core\Csrf;
+use App\Core\Provas;
 use App\Core\Session;
 use App\Core\Str;
 use App\Core\View;
@@ -28,6 +29,7 @@ final class InscricoesController
             'escola_id' => (int) ($_GET['escola_id'] ?? 0),
             'serie_id' => (int) ($_GET['serie_id'] ?? 0),
             'status_id' => (int) ($_GET['status_id'] ?? 0),
+            'data_prova' => (string) ($_GET['data_prova'] ?? ''),
             'de' => (string) ($_GET['de'] ?? ''),
             'ate' => (string) ($_GET['ate'] ?? ''),
             'ordenar' => (string) ($_GET['ordenar'] ?? ''),
@@ -47,6 +49,7 @@ final class InscricoesController
             'escolas' => Escola::todas(),
             'series' => Serie::todas(),
             'statusLista' => StatusInscricao::todos(),
+            'calendarioProvas' => Provas::resumoCampanha(),
             'csrf' => Csrf::token(),
             'flash' => Session::pull('admin_flash'),
         ], 'admin');
@@ -68,6 +71,7 @@ final class InscricoesController
             'escolas' => Escola::todas(),
             'series' => Serie::todas(),
             'statusLista' => StatusInscricao::todos(),
+            'provasPorEscola' => Provas::opcoesPorEscolas(Escola::todas()),
             'csrf' => Csrf::token(),
             'flash' => Session::pull('admin_flash'),
             'erros' => Session::pull('admin_erros', []),
@@ -188,7 +192,7 @@ final class InscricoesController
         fwrite($out, "\xEF\xBB\xBF");
         fputcsv($out, [
             'Protocolo', 'Estudante', 'Nascimento', 'Série', 'Escola escolhida', 'Escola atual',
-            'Responsável', 'Parentesco', 'WhatsApp', 'E-mail', 'Cidade', 'Status',
+            'Data da prova', 'Responsável', 'Parentesco', 'WhatsApp', 'E-mail', 'Cidade', 'Status',
             'Consent. dados', 'Consent. contato', 'Versão do termo', 'Data do aceite', 'Inscrito em',
         ], ';');
         foreach ($rows as $r) {
@@ -199,6 +203,7 @@ final class InscricoesController
                 $r['serie_nome'],
                 $r['escola_nome'],
                 $r['escola_atual'],
+                data_br($r['data_prova']),
                 $r['responsavel_nome'],
                 $r['parentesco'],
                 $r['whatsapp'],

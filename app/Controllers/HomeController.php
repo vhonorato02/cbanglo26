@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Core\Config;
 use App\Core\Csrf;
+use App\Core\Provas;
 use App\Core\Session;
 use App\Core\View;
 use App\Models\Escola;
@@ -18,30 +19,43 @@ final class HomeController
     {
         Session::start();
         $config = Config::all();
+        $escolas = Escola::ativas();
 
-        $eventData = [
-            '@context' => 'https://schema.org',
-            '@type' => 'Event',
-            'name' => $config['campanha_nome'] ?? 'Concurso de Bolsas',
-            'description' => $config['campanha_descricao'] ?? '',
-            'eventAttendanceMode' => 'https://schema.org/OfflineEventAttendanceMode',
-            'organizer' => [
-                '@type' => 'EducationalOrganization',
-                'name' => 'Anglo Pinda, Colégio Fênix, Colégio Drummond e Anglo Cruzeiro',
-            ],
-            'url' => url('/'),
-        ];
-        if (($config['data_prova'] ?? '') !== '') {
-            $eventData['startDate'] = ($config['data_prova'] ?? '') . 'T' . ($config['hora_prova'] ?? '09:00');
+        $events = [];
+        foreach ($escolas as $escola) {
+            foreach (Provas::opcoesParaNome($escola['nome']) as $opcao) {
+                $events[] = [
+                    '@type' => 'Event',
+                    'name' => ($config['campanha_nome'] ?? 'Concurso de Bolsas') . ' - ' . $escola['nome'],
+                    'description' => $config['campanha_descricao'] ?? '',
+                    'startDate' => $opcao['data'] . 'T' . $opcao['hora'],
+                    'eventAttendanceMode' => 'https://schema.org/OfflineEventAttendanceMode',
+                    'location' => [
+                        '@type' => 'Place',
+                        'name' => $escola['nome'],
+                        'address' => $escola['cidade'] ?? '',
+                    ],
+                    'organizer' => [
+                        '@type' => 'EducationalOrganization',
+                        'name' => $escola['nome'],
+                    ],
+                    'url' => url('/'),
+                ];
+            }
         }
 
-        $structuredData = json_encode($eventData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $structuredData = json_encode([
+            '@context' => 'https://schema.org',
+            '@graph' => $events,
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
         View::show('home/index', [
             'config' => $config,
-            'escolas' => Escola::ativas(),
+            'escolas' => $escolas,
             'series' => Serie::ativas(),
             'faqs' => Faq::ativas(),
+            'provasPorEscola' => Provas::opcoesPorEscolas($escolas),
+            'calendarioProvas' => Provas::resumoCampanha(),
             'inscricoesAbertas' => Config::inscricoesAbertas(),
             'csrf' => Csrf::token(),
             'formTs' => time(),

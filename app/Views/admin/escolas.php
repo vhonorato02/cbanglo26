@@ -2,7 +2,10 @@
 /** Gerenciar escolas: $escolas, $csrf, $flash */
 ?>
 <div class="admin-page-head">
-  <h1>Escolas participantes</h1>
+  <div>
+    <h1>Escolas participantes</h1>
+    <p class="page-meta">Dados de contato usados no bloco “Fale conosco” e no atendimento das inscrições.</p>
+  </div>
 </div>
 
 <?php if (!empty($flash)): ?>

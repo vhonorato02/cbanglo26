@@ -38,7 +38,7 @@ $ativo = function ($prefix) use ($uri) {
 <div class="admin-shell">
   <aside class="admin-sidebar" id="admin-sidebar">
     <div class="admin-brand">
-      <span class="brand-mark" aria-hidden="true">CB</span>
+      <span class="brand-mark" aria-hidden="true">26</span>
       <span>Concurso<br>de Bolsas</span>
     </div>
     <nav aria-label="Menu do painel">
@@ -64,9 +64,9 @@ $ativo = function ($prefix) use ($uri) {
   <div class="admin-main">
     <header class="admin-topbar">
       <button class="admin-menu-toggle" type="button" aria-expanded="false" aria-controls="admin-sidebar">
-        <span aria-hidden="true">☰</span><span class="visually-hidden">Abrir menu</span>
+        <span aria-hidden="true">Menu</span><span class="visually-hidden">Abrir menu</span>
       </button>
-      <a class="btn-link" href="<?= e(url('/')) ?>" target="_blank" rel="noopener">Ver site ↗</a>
+      <a class="btn-link" href="<?= e(url('/')) ?>" target="_blank" rel="noopener">Ver site</a>
     </header>
     <main id="conteudo" class="admin-content">
       <?= $content ?>

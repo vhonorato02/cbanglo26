@@ -42,6 +42,7 @@ CREATE TABLE inscricoes (
     aluno_nascimento TEXT NOT NULL,
     serie_id INTEGER NOT NULL REFERENCES series (id),
     escola_id INTEGER NOT NULL REFERENCES escolas (id),
+    data_prova TEXT NOT NULL,
     escola_atual TEXT NOT NULL,
     responsavel_nome TEXT NOT NULL,
     parentesco TEXT NOT NULL,
@@ -61,6 +62,7 @@ CREATE TABLE inscricoes (
 CREATE INDEX idx_inscricoes_status ON inscricoes (status_id);
 CREATE INDEX idx_inscricoes_criado ON inscricoes (criado_em);
 CREATE INDEX idx_inscricoes_ip ON inscricoes (ip_hash, criado_em);
+CREATE INDEX idx_inscricoes_prova ON inscricoes (data_prova);
 
 CREATE TABLE inscricao_observacoes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

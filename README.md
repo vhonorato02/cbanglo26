@@ -1,217 +1,81 @@
 # Concurso de Bolsas 2026
 
-Sistema de inscrição online para concurso de bolsas de estudo. Desenvolvido com PHP moderno e banco de dados MySQL.
+Sistema PHP para inscrição online, comprovante e painel administrativo do Concurso de Bolsas 2026.
 
-## 🎯 Funcionalidades
+## Requisitos
 
-- ✅ Inscrição online com validação em tempo real
-- ✅ Consulta de comprovante com protocolo ou e-mail
-- ✅ Painel administrativo com dashboard
-- ✅ Gerenciamento de escolas, séries e perguntas frequentes
-- ✅ Auditoria de operações administrativas
-- ✅ Envio de e-mails com notificação
-- ✅ Segurança: proteção CSRF, rate limiting, validação de entrada
-- ✅ Responsivo e acessível (WCAG 2.1 AA)
+- PHP 7.1 ou superior
+- MySQL 5.7/MariaDB 10.3 em produção, ou SQLite para preview local
+- Apache com `.htaccess` em hospedagem compartilhada
+- Node.js apenas para build dos assets CSS/JS
 
-## 🛠 Requisitos
+## Preview Local Sem XAMPP
 
-- **PHP**: 8.1 ou superior
-- **MySQL**: 5.7 ou superior (5.8+ recomendado)
-- **Servidor**: Apache com mod_rewrite ativado (ou equivalente)
-- **Suporte a SSL/TLS**: HTTPS recomendado
-
-## 📋 Instalação e Deploy
-
-### 1. Preparação do Banco de Dados
-
-Importar o schema SQL no seu servidor MySQL:
+Crie o banco SQLite de desenvolvimento:
 
 ```bash
-mysql -h seu_host -u seu_usuario -p seu_banco < database/schema.sql
+php tests/seed-sqlite.php database/dev.sqlite
 ```
 
-Ou via painel de controle (cPanel, Plesk, phpMyAdmin):
-1. Vá em Banco de Dados
-2. Importe o arquivo `database/schema.sql`
-
-### 2. Upload dos Arquivos
-
-Via FTP, suba todos os arquivos para a raiz do site (`public_html` ou equivalente):
-
-```
-✅ Fazer upload:
-- app/
-- bootstrap/
-- config/
-- database/
-- public/
-- resources/
-- routes/
-- storage/
-- package.json
-- .htaccess (arquivo oculto — não esqueça!)
-
-❌ Não fazer upload:
-- tests/
-- docs/
-- tools/
-- node_modules/
-- .git/
-- .github/
-```
-
-### 3. Configurar Permissões
-
-Após o upload, configure as permissões das pastas:
+Suba o servidor embutido do PHP:
 
 ```bash
-chmod 755 storage
-chmod 755 storage/cache
-chmod 755 storage/logs
+php -S 127.0.0.1:8096 -t public tests/server-router.php
 ```
 
-Ou via FTP (propriedades da pasta):
-- `storage/` → 755 ou 775
-- `storage/cache/` → 755 ou 775
-- `storage/logs/` → 755 ou 775
+Abra `http://127.0.0.1:8096/`.
 
-### 4. Configurar Variáveis de Ambiente
+Acesso inicial do painel:
 
-Crie um arquivo `.env` na raiz do projeto (copie de `.env.example`):
+- Usuário: `admin`
+- Senha: `cbanglo26##`
+
+## Datas Da Prova
+
+- Anglo Pinda: 26 de setembro ou 17 de outubro, às 9h
+- Colégio Fênix, Colégio Drummond e Anglo Cruzeiro: 17 de outubro, às 9h
+
+O formulário valida a data conforme a unidade escolhida.
+
+## Deploy
+
+1. Rode o build dos assets:
 
 ```bash
-# Copie o arquivo de exemplo
-cp .env.example .env
+npm install
+npm run build
 ```
 
-Edite o `.env` e preencha:
+2. Importe `database/schema.sql` no banco MySQL/MariaDB.
 
-```env
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://seu-dominio.com.br
-APP_KEY=sua-chave-aleatoria-aqui
-APP_TIMEZONE=America/Sao_Paulo
+3. Configure `.env` a partir de `.env.example`, com `DB_DRIVER=mysql` e as credenciais reais do banco.
 
-DB_HOST=seu_host_mysql
-DB_DATABASE=seu_banco
-DB_USERNAME=seu_usuario
-DB_PASSWORD=sua_senha
+4. Envie para a hospedagem:
 
-SMTP_HOST=seu_smtp_host
-SMTP_PORT=587
-SMTP_USERNAME=seu_email@dominio.com
-SMTP_PASSWORD=sua_senha_smtp
-SMTP_ENCRYPTION=tls
-```
+- `app/`
+- `bootstrap/`
+- `config/`
+- `database/`
+- `public/`
+- `resources/`
+- `routes/`
+- `storage/`
+- `.htaccess`
 
-### 5. Configuração Inicial
+Não envie `tests/`, `node_modules/`, `.git/` nem arquivos `.env` de outro ambiente.
 
-Acesse `https://seu-dominio.com.br/setup` para:
-1. Criar o primeiro usuário administrativo
-2. Configurar dados da campanha
-3. Definir datas de prova e inscrição
-
-> **Nota**: Defina `APP_SETUP_TOKEN` no `.env` com um token aleatório. Após a configuração, remova ou deixe em branco.
-
-## 🔐 Segurança
-
-### Proteções Implementadas
-
-- ✅ Proteção CSRF em todos os formulários
-- ✅ Validação e sanitização de entrada
-- ✅ Proteção contra SQL Injection (prepared statements)
-- ✅ Rate limiting para login e inscrição
-- ✅ Headers de segurança HTTP (CSP, HSTS, X-Frame-Options)
-- ✅ Senhas com hash bcrypt
-- ✅ Bloqueio de acesso a pastas internas via `.htaccess`
-
-### Checklist de Segurança Pré-Produção
-
-- [ ] `APP_DEBUG=false` no `.env`
-- [ ] `APP_KEY` alterado para valor aleatório
-- [ ] `APP_SETUP_TOKEN` removido ou desativado
-- [ ] Banco de dados com backup
-- [ ] HTTPS ativado (certificado SSL/TLS válido)
-- [ ] Arquivo `.env` não é acessível via web
-- [ ] Pastas `storage/`, `config/`, `app/` protegidas por `.htaccess`
-
-## 📧 Configuração de E-mail
-
-### Com SMTP (Recomendado)
-
-No `.env`, configure:
-
-```env
-SMTP_HOST=seu_servidor_smtp.com
-SMTP_PORT=587
-SMTP_USERNAME=seu_email@dominio.com
-SMTP_PASSWORD=sua_senha
-SMTP_ENCRYPTION=tls
-```
-
-### Sem SMTP
-
-Deixe `SMTP_HOST` vazio. O sistema funcionará normalmente, mas e-mails de notificação não serão enviados.
-
-## 🎨 Personalização
-
-### Dados da Campanha
-
-No painel administrativo, em **Configurações**:
-- Nome da campanha
-- Chamada principal
-- Descrição
-- Data e hora da prova
-- Mensagem de encerramento
-- Datas de início e fim das inscrições
-
-### Escolas e Séries
-
-Gerenciadas no painel em **Escolas** e **Séries**.
-
-### Perguntas Frequentes (FAQ)
-
-Gerenciadas em **Perguntas Frequentes** no painel administrativo.
-
-## 🏗 Estrutura do Projeto
-
-```
-app/
-  ├── Controllers/       # Controladores
-  ├── Core/             # Classes principais (Auth, Router, DB, etc)
-  ├── Models/           # Modelos de dados
-  ├── Validation/       # Validadores
-  └── Views/            # Templates PHP
-bootstrap/              # Bootstrap da aplicação
-config/                 # Configurações
-database/               # Schema e migrations
-public/                 # Assets e ponto de entrada (index.php)
-resources/              # CSS e JS (originais)
-routes/                 # Definição de rotas
-storage/                # Cache e logs
-tests/                  # Testes
-```
-
-## 🧪 Testes
+## Testes
 
 ```bash
-# Rodar testes localmente
 php tests/run.php
+php tests/http_smoke.php http://127.0.0.1:8096
 ```
 
-## 📞 Suporte
+## Segurança
 
-Para problemas de deployment:
-1. Verifique se `.htaccess` foi enviado
-2. Confirme se `storage/` tem permissão de escrita
-3. Valide credenciais do banco de dados
-4. Verifique logs em `storage/logs/php-error.log`
-
-## 📄 Licença
-
-Projeto proprietário para uso interno.
-
----
-
-**Desenvolvido com ❤️ para o Concurso de Bolsas 2026**
+- CSRF nos formulários
+- Senhas com `password_hash`
+- Prepared statements
+- Rate limit para login e inscrição
+- Cabeçalhos HTTP de segurança
+- Registro de consentimento e auditoria administrativa

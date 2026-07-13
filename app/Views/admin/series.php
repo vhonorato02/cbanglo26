@@ -2,7 +2,10 @@
 /** Gerenciar séries: $series, $csrf, $flash */
 ?>
 <div class="admin-page-head">
-  <h1>Séries disponíveis</h1>
+  <div>
+    <h1>Séries disponíveis</h1>
+    <p class="page-meta">Opções exibidas no formulário público de inscrição.</p>
+  </div>
 </div>
 
 <?php if (!empty($flash)): ?>

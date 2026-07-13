@@ -11,11 +11,14 @@ require __DIR__ . '/bootstrap.php';
 
 final class T
 {
-    public static int $passed = 0;
-    public static int $failed = 0;
+    /** @var int */
+    public static $passed = 0;
+    /** @var int */
+    public static $failed = 0;
     /** @var array<int, string> */
-    public static array $failures = [];
-    public static string $current = '';
+    public static $failures = [];
+    /** @var string */
+    public static $current = '';
 
     public static function test(string $nome, callable $fn): void
     {
@@ -44,7 +47,7 @@ final class T
         }
     }
 
-    public static function assertEquals(mixed $expected, mixed $actual, string $msg = ''): void
+    public static function assertEquals($expected, $actual, string $msg = ''): void
     {
         if ($expected != $actual) {
             $e = var_export($expected, true);

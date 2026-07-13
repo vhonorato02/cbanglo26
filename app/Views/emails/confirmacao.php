@@ -1,9 +1,9 @@
 <?php
 /**
  * E-mail de confirmação de inscrição (HTML compatível com clientes de e-mail).
- * $protocolo, $alunoNome, $serieNome, $escolaNome, $campanha, $dataProva, $horaProva, $comprovanteUrl
+ * $protocolo, $alunoNome, $serieNome, $escolaNome, $campanha, $dataProva, $horaProva, $provaTexto, $comprovanteUrl
  */
-$dataProvaBr = ($dataProva ?? '') !== '' ? data_br($dataProva) : '';
+$provaTexto = $provaTexto ?? '';
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -19,7 +19,7 @@ $dataProvaBr = ($dataProva ?? '') !== '' ? data_br($dataProva) : '';
   </tr>
   <tr>
     <td style="padding:32px;">
-      <h1 style="margin:0 0 16px;font-size:20px;color:#221d4e;">Inscrição recebida! 🎉</h1>
+      <h1 style="margin:0 0 16px;font-size:20px;color:#221d4e;">Inscrição recebida</h1>
       <p style="margin:0 0 16px;font-size:15px;color:#333;line-height:1.6;">
         A inscrição de <strong><?= e($alunoNome) ?></strong> no <?= e($campanha) ?> foi registrada com sucesso.
       </p>
@@ -29,8 +29,8 @@ $dataProvaBr = ($dataProva ?? '') !== '' ? data_br($dataProva) : '';
           <p style="margin:0 0 14px;font-size:22px;font-weight:bold;color:#221d4e;letter-spacing:1px;"><?= e($protocolo) ?></p>
           <p style="margin:0 0 4px;font-size:14px;color:#333;"><strong>Série:</strong> <?= e($serieNome) ?></p>
           <p style="margin:0 0 4px;font-size:14px;color:#333;"><strong>Escola escolhida:</strong> <?= e($escolaNome) ?></p>
-          <?php if ($dataProvaBr !== ''): ?>
-          <p style="margin:0;font-size:14px;color:#333;"><strong>Prova:</strong> <?= e($dataProvaBr) ?><?= ($horaProva ?? '') !== '' ? ' às ' . e(substr($horaProva, 0, 5)) . 'h' : '' ?></p>
+          <?php if ($provaTexto !== ''): ?>
+          <p style="margin:0;font-size:14px;color:#333;"><strong>Prova:</strong> <?= e($provaTexto) ?></p>
           <?php endif; ?>
         </td></tr>
       </table>

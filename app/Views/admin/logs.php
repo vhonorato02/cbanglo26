@@ -2,7 +2,10 @@
 /** Auditoria: $resultado */
 ?>
 <div class="admin-page-head">
-  <h1>Auditoria <span class="count-pill"><?= (int) $resultado['total'] ?></span></h1>
+  <div>
+    <h1>Auditoria <span class="count-pill"><?= (int) $resultado['total'] ?></span></h1>
+    <p class="page-meta">Registro das ações feitas no painel administrativo.</p>
+  </div>
 </div>
 
 <?php if ($resultado['rows'] === []): ?>

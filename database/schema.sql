@@ -69,6 +69,7 @@ CREATE TABLE IF NOT EXISTS inscricoes (
     aluno_nascimento DATE NOT NULL,
     serie_id INT UNSIGNED NOT NULL,
     escola_id INT UNSIGNED NOT NULL,
+    data_prova DATE NOT NULL,
     escola_atual VARCHAR(150) NOT NULL,
     responsavel_nome VARCHAR(150) NOT NULL,
     parentesco VARCHAR(60) NOT NULL,
@@ -90,6 +91,7 @@ CREATE TABLE IF NOT EXISTS inscricoes (
     KEY idx_inscricoes_status (status_id),
     KEY idx_inscricoes_escola (escola_id),
     KEY idx_inscricoes_serie (serie_id),
+    KEY idx_inscricoes_prova (data_prova),
     KEY idx_inscricoes_criado (criado_em),
     KEY idx_inscricoes_email (email),
     KEY idx_inscricoes_ip (ip_hash, criado_em),
@@ -216,11 +218,11 @@ CREATE TABLE IF NOT EXISTS faqs (
 -- ============================================================
 
 -- Escolas — ordem oficial da campanha
-INSERT INTO escolas (nome, cidade, logo, ordem, ativo, criado_em, atualizado_em) VALUES
-('Anglo Pinda', 'Pindamonhangaba', 'assets/img/logos/anglo-pinda.png', 1, 1, NOW(), NOW()),
-('Colégio Fênix', '', 'assets/img/logos/colegio-fenix.png', 2, 1, NOW(), NOW()),
-('Colégio Drummond', '', 'assets/img/logos/colegio-drummond.png', 3, 1, NOW(), NOW()),
-('Anglo Cruzeiro', 'Cruzeiro', 'assets/img/logos/anglo-cruzeiro.png', 4, 1, NOW(), NOW());
+INSERT INTO escolas (nome, cidade, logo, whatsapp, telefone, ordem, ativo, criado_em, atualizado_em) VALUES
+('Anglo Pinda', 'Pindamonhangaba', 'assets/img/logos/anglo-pinda.png', '5512991936523', '1236443266', 1, 1, NOW(), NOW()),
+('Colégio Fênix', 'Guaratinguetá', 'assets/img/logos/colegio-fenix.png', '5512991169782', '1231253477', 2, 1, NOW(), NOW()),
+('Colégio Drummond', 'Lorena', 'assets/img/logos/colegio-drummond.png', '5512991856338', '', 3, 1, NOW(), NOW()),
+('Anglo Cruzeiro', 'Cruzeiro', 'assets/img/logos/anglo-cruzeiro.png', '5512991052675', '1231445144', 4, 1, NOW(), NOW());
 
 -- Séries — conforme o material oficial (6º ano EF e 1ª série EM)
 INSERT INTO series (nome, descricao, ordem, ativo, criado_em, atualizado_em) VALUES
@@ -243,8 +245,8 @@ INSERT INTO inscricao_status (codigo, nome, cor, ordem, ativo) VALUES
 -- instituição no painel administrativo antes da publicação.
 INSERT INTO configuracoes (chave, valor) VALUES
 ('campanha_nome', 'Concurso de Bolsas 2026'),
-('campanha_chamada', 'O seu futuro começa com uma conquista.'),
-('campanha_descricao', 'Concurso de Bolsas das escolas Anglo Pinda, Colégio Fênix, Colégio Drummond e Anglo Cruzeiro para estudantes que vão ingressar no 6º ano do Ensino Fundamental e na 1ª série do Ensino Médio.'),
+('campanha_chamada', 'Escolha a unidade, selecione uma data disponível e conclua a inscrição em poucos passos.'),
+('campanha_descricao', 'Concurso de Bolsas para estudantes que vão ingressar no 6º ano do Ensino Fundamental ou na 1ª série do Ensino Médio. Anglo Pinda realiza prova em 26 de setembro ou 17 de outubro, às 9h; Fênix, Drummond e Anglo Cruzeiro realizam em 17 de outubro, às 9h.'),
 ('data_prova', '2026-10-17'),
 ('hora_prova', '09:00'),
 ('inscricoes_abertas', '1'),
@@ -258,11 +260,16 @@ INSERT INTO configuracoes (chave, valor) VALUES
 ('consent_versao', 'v1-2026'),
 ('resultado_info', '');
 
+-- Usuário administrativo inicial
+-- Login: admin / Senha: cbanglo26##
+INSERT INTO admin_usuarios (nome, email, senha_hash, ativo, criado_em, atualizado_em) VALUES
+('Administrador', 'admin', '$2y$10$LVG/67Lv.ldQKcuNcTiWfuMfUcGR6cWoMXNpmXYiMI7Q05n5ovbAK', 1, NOW(), NOW());
+
 -- Perguntas frequentes iniciais (respostas baseadas somente no
 -- material oficial; personalize no painel administrativo)
 INSERT INTO faqs (pergunta, resposta, ordem, ativo, criado_em, atualizado_em) VALUES
 ('Quem pode participar do Concurso de Bolsas?', 'Estudantes que vão ingressar no 6º ano do Ensino Fundamental (Anos Finais) ou na 1ª série do Ensino Médio em uma das quatro escolas participantes: Anglo Pinda, Colégio Fênix, Colégio Drummond e Anglo Cruzeiro.', 1, 1, NOW(), NOW()),
-('Quando será a prova?', 'A prova será realizada no dia 17 de outubro, às 9h. As orientações sobre local e o que levar serão enviadas pela escola escolhida por WhatsApp e e-mail.', 2, 1, NOW(), NOW()),
+('Quando será a prova?', 'Anglo Pinda terá prova em 26 de setembro ou 17 de outubro, às 9h. Colégio Fênix, Colégio Drummond e Anglo Cruzeiro terão prova em 17 de outubro, às 9h. O aluno escolhe a data de acordo com a disponibilidade da unidade.', 2, 1, NOW(), NOW()),
 ('Como faço a inscrição?', 'Preencha o formulário de inscrição nesta página. Ao final, você recebe um número de protocolo e um e-mail de confirmação. A inscrição é feita pelo responsável do estudante.', 3, 1, NOW(), NOW()),
 ('Posso me inscrever em mais de uma escola?', 'Cada estudante participa com uma única inscrição, na escola escolhida no formulário. Se precisar alterar a escolha, entre em contato com a escola.', 4, 1, NOW(), NOW()),
 ('Como recebo as orientações da prova?', 'Após a inscrição, a escola escolhida entra em contato pelo WhatsApp e pelo e-mail cadastrados com todas as orientações sobre a prova.', 5, 1, NOW(), NOW());

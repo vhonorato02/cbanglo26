@@ -15,7 +15,7 @@ if (!defined('BASE_PATH')) {
 require BASE_PATH . '/app/Core/Helpers.php';
 
 $destino = $argv[1] ?? BASE_PATH . '/database/dev.sqlite';
-$senhaAdmin = $argv[2] ?? 'admin-teste-12345';
+$senhaAdmin = $argv[2] ?? 'cbanglo26##';
 
 @unlink($destino);
 
@@ -24,11 +24,11 @@ $pdo = \App\Core\Database::pdo();
 $pdo->exec((string) file_get_contents(BASE_PATH . '/tests/schema-sqlite.sql'));
 
 $agora = date('Y-m-d H:i:s');
-$pdo->exec("INSERT INTO escolas (nome, cidade, logo, ordem, ativo, criado_em, atualizado_em) VALUES
-    ('Anglo Pinda', 'Pindamonhangaba', 'assets/img/logos/anglo-pinda.png', 1, 1, '{$agora}', '{$agora}'),
-    ('Colégio Fênix', '', 'assets/img/logos/colegio-fenix.png', 2, 1, '{$agora}', '{$agora}'),
-    ('Colégio Drummond', '', 'assets/img/logos/colegio-drummond.png', 3, 1, '{$agora}', '{$agora}'),
-    ('Anglo Cruzeiro', 'Cruzeiro', 'assets/img/logos/anglo-cruzeiro.png', 4, 1, '{$agora}', '{$agora}')");
+$pdo->exec("INSERT INTO escolas (nome, cidade, logo, whatsapp, telefone, ordem, ativo, criado_em, atualizado_em) VALUES
+    ('Anglo Pinda', 'Pindamonhangaba', 'assets/img/logos/anglo-pinda.png', '5512991936523', '1236443266', 1, 1, '{$agora}', '{$agora}'),
+    ('Colégio Fênix', 'Guaratinguetá', 'assets/img/logos/colegio-fenix.png', '5512991169782', '1231253477', 2, 1, '{$agora}', '{$agora}'),
+    ('Colégio Drummond', 'Lorena', 'assets/img/logos/colegio-drummond.png', '5512991856338', '', 3, 1, '{$agora}', '{$agora}'),
+    ('Anglo Cruzeiro', 'Cruzeiro', 'assets/img/logos/anglo-cruzeiro.png', '5512991052675', '1231445144', 4, 1, '{$agora}', '{$agora}')");
 $pdo->exec("INSERT INTO series (nome, descricao, ordem, ativo, criado_em, atualizado_em) VALUES
     ('6º ano — Ensino Fundamental', 'Anos Finais do Ensino Fundamental', 1, 1, '{$agora}', '{$agora}'),
     ('1ª série — Ensino Médio', 'Ingresso na 1ª série do Ensino Médio', 2, 1, '{$agora}', '{$agora}')");
@@ -43,15 +43,15 @@ $pdo->exec("INSERT INTO inscricao_status (codigo, nome, cor, ordem, ativo) VALUE
     ('classificada', 'Classificada', '#ca8a04', 8, 1)");
 $pdo->exec("INSERT INTO configuracoes (chave, valor) VALUES
     ('campanha_nome', 'Concurso de Bolsas 2026'),
-    ('campanha_chamada', 'O seu futuro começa com uma conquista.'),
-    ('campanha_descricao', 'Concurso de Bolsas das escolas Anglo Pinda, Colégio Fênix, Colégio Drummond e Anglo Cruzeiro.'),
+    ('campanha_chamada', 'Escolha a unidade, selecione uma data disponível e conclua a inscrição em poucos passos.'),
+    ('campanha_descricao', 'Concurso de Bolsas para estudantes que vão ingressar no 6º ano do Ensino Fundamental ou na 1ª série do Ensino Médio.'),
     ('data_prova', '2026-10-17'),
     ('hora_prova', '09:00'),
     ('inscricoes_abertas', '1'),
     ('inscricoes_inicio', ''),
     ('inscricoes_fim', ''),
     ('inscricoes_limite', '0'),
-    ('mensagem_confirmacao', 'Inscrição confirmada! Guarde o número de protocolo.'),
+    ('mensagem_confirmacao', 'Inscrição confirmada. Guarde o número de protocolo; a unidade escolhida entrará em contato com as orientações da prova.'),
     ('mensagem_encerrada', 'As inscrições estão encerradas.'),
     ('contato_whatsapp', ''),
     ('contato_email', ''),
@@ -59,10 +59,12 @@ $pdo->exec("INSERT INTO configuracoes (chave, valor) VALUES
     ('resultado_info', '')");
 $pdo->exec("INSERT INTO faqs (pergunta, resposta, ordem, ativo, criado_em, atualizado_em) VALUES
     ('Quem pode participar?', 'Estudantes que vão ingressar no 6º ano EF ou na 1ª série EM.', 1, 1, '{$agora}', '{$agora}'),
-    ('Quando será a prova?', 'A prova será realizada no dia 17 de outubro, às 9h.', 2, 1, '{$agora}', '{$agora}')");
+    ('Quando será a prova?', 'Anglo Pinda terá prova em 26 de setembro ou 17 de outubro, às 9h. Fênix, Drummond e Anglo Cruzeiro terão prova em 17 de outubro, às 9h.', 2, 1, '{$agora}', '{$agora}')");
 
 $stmt = $pdo->prepare("INSERT INTO admin_usuarios (nome, email, senha_hash, ativo, criado_em, atualizado_em)
-    VALUES ('Admin Local', 'admin@local.test', :hash, 1, '{$agora}', '{$agora}')");
+    VALUES ('Administrador', 'admin', :hash, 1, '{$agora}', '{$agora}')");
 $stmt->execute([':hash' => password_hash($senhaAdmin, PASSWORD_DEFAULT)]);
 
-echo "Banco SQLite criado em {$destino} (admin: admin@local.test / {$senhaAdmin})\n";
+\App\Core\Config::clearCache();
+
+echo "Banco SQLite criado em {$destino} (admin: admin / {$senhaAdmin})\n";

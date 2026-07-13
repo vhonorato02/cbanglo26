@@ -29,6 +29,7 @@ T::test('inscrição válida é salva com protocolo único', function () {
     T::assert($inscricao !== null, 'não localizada pelo protocolo');
     T::assertEquals('Maria Clara de Souza', $inscricao['aluno_nome']);
     T::assertEquals('recebida', $inscricao['status_codigo']);
+    T::assertEquals('2026-09-26', $inscricao['data_prova']);
     T::assertEquals(1, (int) $inscricao['consent_privacidade']);
     T::assert($inscricao['consent_data'] !== '', 'consentimento sem data');
 });
@@ -62,7 +63,13 @@ T::test('contagem por IP funciona (controle de velocidade)', function () {
 
 T::test('busca por nome, protocolo e filtros', function () {
     $r = criar_inscricao_teste();
-    criar_inscricao_teste(['aluno_nome' => 'Pedro Henrique Lima', 'aluno_nascimento' => '02/07/2010', 'serie_id' => '2', 'escola_id' => '2']);
+    criar_inscricao_teste([
+        'aluno_nome' => 'Pedro Henrique Lima',
+        'aluno_nascimento' => '02/07/2010',
+        'serie_id' => '2',
+        'escola_id' => '2',
+        'data_prova' => '2026-10-17',
+    ]);
 
     $porNome = Inscricao::buscar(['busca' => 'maria clara']);
     T::assertEquals(1, $porNome['total'], 'busca por nome');
@@ -141,7 +148,7 @@ T::test('falha de banco não corrompe: transação faz rollback', function () {
             $pdo->exec("INSERT INTO configuracoes (chave, valor) VALUES ('tx_teste', '1')");
             throw new RuntimeException('falha simulada');
         });
-    } catch (RuntimeException) {
+    } catch (RuntimeException $e) {
         // esperado
     }
     $cfg = Database::pdo()->query("SELECT COUNT(*) FROM configuracoes WHERE chave = 'tx_teste'")->fetchColumn();

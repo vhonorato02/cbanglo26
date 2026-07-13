@@ -32,7 +32,11 @@ final class Database
         $cfg = isset(self::$config) ? self::$config : (require BASE_PATH . '/config/app.php')['db'];
 
         if ((isset($cfg['driver']) ? $cfg['driver'] : 'mysql') === 'sqlite') {
-            $pdo = new PDO('sqlite:' . (isset($cfg['sqlite_path']) ? $cfg['sqlite_path'] : ':memory:'));
+            $sqlitePath = isset($cfg['sqlite_path']) ? $cfg['sqlite_path'] : ':memory:';
+            if ($sqlitePath !== ':memory:' && !self::isAbsolutePath($sqlitePath)) {
+                $sqlitePath = BASE_PATH . '/' . ltrim(str_replace('\\', '/', $sqlitePath), '/');
+            }
+            $pdo = new PDO('sqlite:' . $sqlitePath);
             $pdo->exec('PRAGMA foreign_keys = ON');
         } else {
             $dsn = sprintf(
@@ -76,5 +80,11 @@ final class Database
     /** Expressão de data/hora atual compatível com MySQL e SQLite. */
     public static function now() {
         return date('Y-m-d H:i:s');
+    }
+
+    private static function isAbsolutePath($path) {
+        return preg_match('/^[A-Za-z]:[\\\\\/]/', $path) === 1
+            || str_starts_with($path, '/')
+            || str_starts_with($path, '\\\\');
     }
 }

@@ -1,8 +1,11 @@
 <?php
-/** Dashboard: $indicadores, $porEscola, $porSerie, $porStatus, $inscricoesAbertas, $recentes */
+/** Dashboard: $indicadores, $porEscola, $porSerie, $porStatus, $porProva, $calendarioProvas, $inscricoesAbertas, $recentes */
 ?>
 <div class="admin-page-head">
-  <h1>Visão geral</h1>
+  <div>
+    <h1>Visão geral</h1>
+    <p class="page-meta">Inscrições, distribuição por unidade e datas de prova.</p>
+  </div>
   <span class="badge <?= $inscricoesAbertas ? 'badge-ok' : 'badge-erro' ?>">
     Inscrições <?= $inscricoesAbertas ? 'abertas' : 'fechadas' ?>
   </span>
@@ -21,6 +24,36 @@
     <p class="stat-num"><?= (int) $indicadores['semana'] ?></p>
     <p class="stat-label">Últimos 7 dias</p>
   </div>
+</div>
+
+<div class="panel-grid panel-grid-2 dashboard-calendar">
+  <section class="panel">
+    <h2>Calendário oficial</h2>
+    <ul class="calendar-list">
+      <?php foreach (($calendarioProvas ?? []) as $item): ?>
+      <li>
+        <span><?= e($item['unidade']) ?></span>
+        <strong><?= e($item['datas']) ?> · <?= e($item['hora']) ?></strong>
+      </li>
+      <?php endforeach; ?>
+    </ul>
+  </section>
+
+  <section class="panel">
+    <h2>Inscrições por data</h2>
+    <?php if (($porProva ?? []) === []): ?>
+    <p class="empty-note">Ainda não há inscrições por data.</p>
+    <?php else: ?>
+    <ul class="calendar-list calendar-list-count">
+      <?php foreach ($porProva as $linha): ?>
+      <li>
+        <span><?= e(\App\Core\Provas::rotuloSelecionada($linha['nome'])) ?></span>
+        <strong><?= (int) $linha['total'] ?></strong>
+      </li>
+      <?php endforeach; ?>
+    </ul>
+    <?php endif; ?>
+  </section>
 </div>
 
 <div class="panel-grid">
@@ -64,7 +97,7 @@
   <div class="tabela-wrap">
     <table class="tabela">
       <thead>
-        <tr><th>Protocolo</th><th>Estudante</th><th>Série</th><th>Escola</th><th>Status</th><th>Data</th></tr>
+        <tr><th>Protocolo</th><th>Estudante</th><th>Série</th><th>Escola</th><th>Prova</th><th>Status</th><th>Data</th></tr>
       </thead>
       <tbody>
         <?php foreach ($recentes as $r): ?>
@@ -73,6 +106,7 @@
           <td data-th="Estudante"><?= e($r['aluno_nome']) ?></td>
           <td data-th="Série"><?= e($r['serie_nome']) ?></td>
           <td data-th="Escola"><?= e($r['escola_nome']) ?></td>
+          <td data-th="Prova"><?= e(\App\Core\Provas::rotuloSelecionada($r['data_prova'])) ?></td>
           <td data-th="Status"><span class="badge" style="--badge-cor: <?= e($r['status_cor']) ?>"><?= e($r['status_nome']) ?></span></td>
           <td data-th="Data"><?= e(data_br($r['criado_em'], true)) ?></td>
         </tr>

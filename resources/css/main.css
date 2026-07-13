@@ -467,6 +467,35 @@ body {
   color: var(--text-inverse);
 }
 
+.hero-schedule {
+  display: grid;
+  gap: 8px;
+  max-width: 520px;
+  margin-top: 18px;
+}
+
+.hero-schedule p {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 11px 14px;
+  border: 1px solid rgb(255 255 255 / 0.2);
+  border-radius: var(--radius);
+  background: rgb(255 255 255 / 0.1);
+}
+
+.hero-schedule span {
+  color: var(--text-inverse);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.hero-schedule strong {
+  color: var(--white);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+
 .signup-panel.form-card {
   margin-top: 0;
   padding: clamp(16px, 2vw, 24px);
@@ -601,7 +630,14 @@ body {
 
 .signup-panel .field-check span,
 .signup-panel .form-hint,
+.signup-panel .field-hint,
 .signup-panel .field-error {
+  font-size: 0.9rem;
+}
+
+.field-hint {
+  margin: 5px 0 0;
+  color: var(--text-soft);
   font-size: 0.9rem;
 }
 
@@ -624,12 +660,59 @@ body {
   margin-bottom: 28px;
 }
 
+.section-heading-row {
+  max-width: none;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 420px);
+  align-items: end;
+}
+
 .section-title {
   max-width: 18ch;
 }
 
 .section-lead {
   margin: 0;
+}
+
+.section-schedule {
+  background: #f0f0f7;
+}
+
+.schedule-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.schedule-card {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid #e1dfec;
+  border-radius: var(--radius);
+  background: var(--white);
+}
+
+.schedule-card p {
+  margin: 0;
+}
+
+.schedule-unit {
+  color: var(--ink-800);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.15rem;
+}
+
+.schedule-date {
+  color: var(--text);
+  font-weight: 800;
+}
+
+.schedule-hour {
+  color: var(--text-soft);
+  font-size: 0.94rem;
 }
 
 .contact-name {
@@ -755,6 +838,7 @@ body {
     gap: 4px;
   }
   .signup-panel .radio-cards,
+  .schedule-list,
   .contact-list {
     grid-template-columns: 1fr;
   }
@@ -784,6 +868,9 @@ body {
   .signup-panel .resumo-lista > div {
     grid-template-columns: 1fr;
     gap: 0;
+  }
+  .section-heading-row {
+    grid-template-columns: 1fr;
   }
   .contact-card {
     grid-template-columns: 40px 1fr;

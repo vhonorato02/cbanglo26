@@ -3,7 +3,10 @@
 $multilinha = ['campanha_descricao', 'mensagem_confirmacao', 'mensagem_encerrada', 'resultado_info'];
 ?>
 <div class="admin-page-head">
-  <h1>Configurações da campanha</h1>
+  <div>
+    <h1>Configurações da campanha</h1>
+    <p class="page-meta">Textos públicos, período de inscrição e mensagens do fluxo. As datas por unidade são aplicadas automaticamente no formulário.</p>
+  </div>
 </div>
 
 <?php if (!empty($flash)): ?>

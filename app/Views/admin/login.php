@@ -10,7 +10,7 @@
 </head>
 <body class="admin admin-auth">
 <main class="auth-card">
-  <p class="admin-brand admin-brand-center"><span class="brand-mark" aria-hidden="true">CB</span> Concurso de Bolsas</p>
+  <p class="admin-brand admin-brand-center"><span class="brand-mark" aria-hidden="true">26</span> Concurso de Bolsas</p>
   <h1>Painel administrativo</h1>
   <?php if (!empty($erro)): ?>
   <div class="alert alert-erro" role="alert"><?= e($erro) ?></div>
@@ -21,8 +21,8 @@
   <form method="post" action="<?= e(url('admin/login')) ?>">
     <input type="hidden" name="_csrf" value="<?= e($csrf) ?>">
     <div class="field">
-      <label for="email">E-mail</label>
-      <input type="email" id="email" name="email" required autocomplete="username" maxlength="190">
+      <label for="email">Usuário</label>
+      <input type="text" id="email" name="email" required autocomplete="username" maxlength="190">
     </div>
     <div class="field">
       <label for="senha">Senha</label>
@@ -30,8 +30,7 @@
     </div>
     <button type="submit" class="btn btn-gold btn-lg btn-block">Entrar</button>
   </form>
-  <p class="auth-note">Esqueceu a senha? Peça a outro administrador para redefini-la
-  em “Usuários” ou siga o procedimento de recuperação descrito no manual de implantação.</p>
+  <p class="auth-note">Acesso restrito à equipe autorizada da campanha.</p>
 </main>
 </body>
 </html>

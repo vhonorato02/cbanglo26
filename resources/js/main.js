@@ -59,6 +59,57 @@ document.querySelectorAll('[data-mask]').forEach((input) => {
   });
 });
 
+/* ---------- Datas de prova por unidade ---------- */
+(function () {
+  const escolaSelect = document.getElementById('escola_id');
+  const dataSelect = document.getElementById('data_prova');
+  if (!escolaSelect || !dataSelect) return;
+
+  let provas = {};
+  try {
+    provas = JSON.parse(dataSelect.dataset.provas || '{}');
+  } catch (_) {
+    provas = {};
+  }
+
+  function criarOpcao(value, label) {
+    const opt = document.createElement('option');
+    opt.value = value;
+    opt.textContent = label;
+    return opt;
+  }
+
+  function popularDatas() {
+    const escolaId = escolaSelect.value;
+    const selecionada = dataSelect.dataset.selected || '';
+    const grupo = provas[escolaId];
+    const datas = grupo && Array.isArray(grupo.datas) ? grupo.datas : [];
+
+    dataSelect.innerHTML = '';
+    dataSelect.appendChild(criarOpcao('', escolaId ? 'Escolha a data' : 'Selecione a unidade primeiro'));
+
+    datas.forEach((opcao) => {
+      const opt = criarOpcao(opcao.data, opcao.label);
+      if (selecionada === opcao.data) opt.selected = true;
+      dataSelect.appendChild(opt);
+    });
+
+    if (datas.length === 1 && !selecionada) {
+      dataSelect.value = datas[0].data;
+    }
+  }
+
+  escolaSelect.addEventListener('change', () => {
+    dataSelect.dataset.selected = '';
+    popularDatas();
+    if (dataSelect.value !== '') validarCampo(dataSelect);
+  });
+  dataSelect.addEventListener('change', () => {
+    dataSelect.dataset.selected = dataSelect.value;
+  });
+  popularDatas();
+})();
+
 /* ---------- Validação de campos ---------- */
 const validadores = {
   aluno_nome: (v) => (v.trim().length >= 5 && v.trim().includes(' ')) || 'Informe nome e sobrenome.',
@@ -76,6 +127,7 @@ const validadores = {
   },
   serie_id: (v) => v !== '' || 'Escolha a série pretendida.',
   escola_id: (v) => v !== '' || 'Escolha a unidade desejada.',
+  data_prova: (v) => v !== '' || 'Escolha a data da prova.',
   escola_atual: (v) => v.trim().length >= 2 || 'Informe a escola atual.',
   responsavel_nome: (v) => (v.trim().length >= 5 && v.trim().includes(' ')) || 'Informe nome e sobrenome.',
   parentesco: (v) => v !== '' || 'Informe o grau de parentesco.',
@@ -184,7 +236,7 @@ function validarCampo(el) {
     document.querySelectorAll('[data-resumo]').forEach((dd) => {
       const campo = dd.dataset.resumo;
       let valor = (dados.get(campo) || '').toString();
-      if (campo === 'serie_id' || campo === 'escola_id') {
+      if (campo === 'serie_id' || campo === 'escola_id' || campo === 'data_prova') {
         const el = form.querySelector(`[name="${campo}"]`);
         if (el && el.tagName === 'SELECT') {
           valor = el.selectedIndex > 0 ? el.options[el.selectedIndex].text.trim() : '';

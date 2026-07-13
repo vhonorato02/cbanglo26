@@ -2,13 +2,14 @@
 /** Detalhe da inscrição: $inscricao, $observacoes, $historico, $escolas, $series, $statusLista, $csrf, $flash, $erros */
 $erros = $erros ?? [];
 $nascimentoBr = data_br($inscricao['aluno_nascimento']);
+$dataProvaTexto = !empty($inscricao['data_prova']) ? \App\Core\Provas::rotuloSelecionada($inscricao['data_prova']) : 'Sem data';
 ?>
 <div class="admin-page-head">
   <div>
     <a class="btn-link" href="<?= e(url('admin/inscricoes')) ?>">&larr; Inscrições</a>
     <h1>Inscrição <?= e($inscricao['protocolo']) ?></h1>
     <p class="page-meta">Registrada em <?= e(data_br($inscricao['criado_em'], true)) ?> ·
-      Termo <?= e($inscricao['consent_versao']) ?> aceito em <?= e(data_br($inscricao['consent_data'], true)) ?></p>
+      Prova: <?= e($dataProvaTexto) ?> · Termo <?= e($inscricao['consent_versao']) ?> aceito em <?= e(data_br($inscricao['consent_data'], true)) ?></p>
   </div>
   <button type="button" class="btn btn-ghost-dark btn-sm no-print" data-imprimir>Imprimir</button>
 </div>
@@ -58,6 +59,20 @@ $nascimentoBr = data_br($inscricao['aluno_nascimento']);
           <label for="escola_atual">Escola atual</label>
           <input type="text" id="escola_atual" name="escola_atual" value="<?= e($inscricao['escola_atual']) ?>" required maxlength="150">
         </div>
+      </div>
+
+      <div class="field <?= isset($erros['data_prova']) ? 'has-error' : '' ?>">
+        <label for="data_prova">Data da prova</label>
+        <select id="data_prova" name="data_prova" required>
+          <?php foreach (($provasPorEscola ?? []) as $escolaId => $grupo): ?>
+            <?php foreach ($grupo['datas'] as $opcao): ?>
+            <option value="<?= e($opcao['data']) ?>" <?= (string) $inscricao['data_prova'] === (string) $opcao['data'] && (string) $inscricao['escola_id'] === (string) $escolaId ? 'selected' : '' ?>>
+              <?= e($grupo['escola']) ?> · <?= e($opcao['label']) ?>
+            </option>
+            <?php endforeach; ?>
+          <?php endforeach; ?>
+        </select>
+        <?php if (isset($erros['data_prova'])): ?><p class="field-error"><?= e($erros['data_prova']) ?></p><?php endif; ?>
       </div>
 
       <div class="field <?= isset($erros['responsavel_nome']) ? 'has-error' : '' ?>">

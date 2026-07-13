@@ -2,7 +2,10 @@
 /** Usuários administrativos: $usuarios, $csrf, $flash */
 ?>
 <div class="admin-page-head">
-  <h1>Usuários administrativos</h1>
+  <div>
+    <h1>Usuários administrativos</h1>
+    <p class="page-meta">Gerencie quem acessa o painel. O usuário pode ser um login curto, como <code>admin</code>, ou um e-mail.</p>
+  </div>
 </div>
 
 <?php if (!empty($flash)): ?>
@@ -19,8 +22,8 @@
       <input type="hidden" name="id" value="<?= (int) $usuario['id'] ?>">
       <div class="field"><label for="nome-<?= (int) $usuario['id'] ?>">Nome</label>
         <input type="text" id="nome-<?= (int) $usuario['id'] ?>" name="nome" value="<?= e($usuario['nome']) ?>" required maxlength="120"></div>
-      <div class="field"><label for="email-<?= (int) $usuario['id'] ?>">E-mail</label>
-        <input type="email" id="email-<?= (int) $usuario['id'] ?>" name="email" value="<?= e($usuario['email']) ?>" required maxlength="190"></div>
+      <div class="field"><label for="email-<?= (int) $usuario['id'] ?>">Usuário de acesso</label>
+        <input type="text" id="email-<?= (int) $usuario['id'] ?>" name="email" value="<?= e($usuario['email']) ?>" required maxlength="190" autocomplete="username"></div>
       <div class="field-row">
         <div class="field"><label for="senha-<?= (int) $usuario['id'] ?>">Nova senha (deixe em branco para manter)</label>
           <input type="password" id="senha-<?= (int) $usuario['id'] ?>" name="senha" minlength="10" autocomplete="new-password"></div>
@@ -42,8 +45,8 @@
       <input type="hidden" name="id" value="0">
       <div class="field"><label for="nome-novo">Nome</label>
         <input type="text" id="nome-novo" name="nome" required maxlength="120"></div>
-      <div class="field"><label for="email-novo">E-mail</label>
-        <input type="email" id="email-novo" name="email" required maxlength="190"></div>
+      <div class="field"><label for="email-novo">Usuário de acesso</label>
+        <input type="text" id="email-novo" name="email" required maxlength="190" autocomplete="username"></div>
       <div class="field"><label for="senha-novo">Senha (mín. 10 caracteres)</label>
         <input type="password" id="senha-novo" name="senha" required minlength="10" autocomplete="new-password"></div>
       <input type="hidden" name="ativo" value="1">
